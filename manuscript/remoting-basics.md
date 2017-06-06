@@ -51,9 +51,9 @@ Tabla 1.1 comparando las maneras de habilitar Remoting
 | Configurar EndPoints / Configurar sesiones | Si | No | Si - utilice el Cmdlet PSSessionConfiguration |
 | Configurar la excepción de Firewall de Windows | Si\* | Si\* | Si\* - Utilice Cmdlets del Firewall o la GUI del Firewall de Windows |
 
-**Note** Existing client versions of Windows, such as Windows Vista, do not permit firewall exceptions on any network identified as "Public". Networks must either be "Home" or "Work/Domain" in order to permit exceptions. In PowerShell 3.0, you can run **Enable-PSRemoting** with the **-SkipNetworkProfileCheck** switch to avoid this problem.
+**Nota** Tenga en cuenta que las versiones existentes de cliente de Windows, como Windows Vista, no permiten excepciones de Firewall en una red identificada como "pública". Las redes deben ser "casa" o "trabajo/dominio" para permitir excepciones. En PowerShell 3.0, se puede ejecutar **Enable-PSRemoting** con el modificador **-SkipNetworkProfileCheck** para evitar este problema..
 
-We'll be enabling Remoting in our test environment by running **Enable-PSRemoting**. It's quick, easy, and comprehensive; you'll also see most of the manual tasks performed in the upcoming sections.
+Estaremos habilitando la administración remota en nuestro entorno de prueba ejecutando **Enable-PSRemoting**. Es rápido, fácil e incluye todo lo necesario. También vera una gran cantidad de tareas manuales a realizar en las siguientes secciones.
 
 ## Test Environment
 
