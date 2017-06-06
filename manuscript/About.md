@@ -6,7 +6,7 @@ Cover design by Nathan Vonnahme
 
 ---
 
-Introduced in Windows PowerShell 2.0, Remoting is one of PowerShell's most useful, and most important, core technologies. It enables you to run almost any command that exists on a remote computer, opening up a universe of possibilities for bulk and remote administration. Remoting underpins other technologies, including Workflow, Desired State Configuration, certain types of background jobs, and much more. This guide isn't intended to be a complete document of what Remoting is and does, although it does provide a good introduction. Instead, this guide is designed to document all the little configuration details that don't appear to be documented elsewhere.
+Introducido en Windows PowerShell 2.0, Remoting es una de las tecnologías más útiles e importantes de PowerShell. Permite ejecutar casi cualquier comando que existe en un equipo remoto, abriendo un universo de posibilidades para la administración en masa y de forma remota. Remoting subyace otras tecnologías, incluyendo Workflow, Desired State Configuration, ciertos tipos de jobs en background y mucho más. Esta guía no pretende ser un documento completo de referencia, aunque sí busca proporcionar una buena introducción. En su lugar, esta guía está diseñada para documentar algunos pequeños detalles de configuración que no parecen estar documentados en otras partes.
 
 ---
 
