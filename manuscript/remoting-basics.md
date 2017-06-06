@@ -43,13 +43,13 @@ La mayoría de las versiones cliente de Windows, iniciando con Windows Vista, no
 
 Tabla 1.1 comparando las maneras de habilitar Remoting
 
-|  | Enable-PSRemoting | Group Policy | Manually Step-by-Step |
+|  | Enable-PSRemoting | Política de grupo | Manualmente paso a paso |
 | --- | --- | --- | --- |
-| Set WinRM to auto-start and start the service | Yes | Yes | Yes - use **Set-Service** and **Start-Service**. |
-| Configure HTTP listener | Yes | You can configure auto-registration of listeners, not create custom listeners | Yes - use WSMAN command-line utility and **WSMAN:** drive in PowerShell |
-| Configure HTTPS listener | No | No | Yes - use WSMAN command-line utility and **WSMAN:** drive in PowerShell |
-| Configure endpoints / session configurations | Yes | No | Yes - use PSSessionConfiguration cmdlets |
-| Configure Windows Firewall exception | Yes\* | Yes\* | Yes\* - use Firewall cmdlets or Windows Firewall GUI |
+| Establecer WinRM para auto-iniciar e iniciar el servicio | Si | Si | Si - utilice **Set-Service** y **Start-Service**. |
+| Configurar el detector de HTTP | Si | Puede configurar el registro automático de Listeners, sin crear Listeners personalizados | Si - Utilice la utilidad de línea de comandos WSMAN y la unidad **WSMAN:** de PowerShell |
+| Configurar el detector de HTTPS | No | No | Si - Utilice la utilidad de línea de comandos WSMAN y la unidad **WSMAN:** de PowerShell |
+| Configurar EndPoints / Configurar sesiones | Si | No | Si - utilice el Cmdlet PSSessionConfiguration |
+| Configurar la excepción de Firewall de Windows | Si\* | Si\* | Si\* - Utilice Cmdlets del Firewall o la GUI del Firewall de Windows |
 
 **Note** Existing client versions of Windows, such as Windows Vista, do not permit firewall exceptions on any network identified as "Public". Networks must either be "Home" or "Work/Domain" in order to permit exceptions. In PowerShell 3.0, you can run **Enable-PSRemoting** with the **-SkipNetworkProfileCheck** switch to avoid this problem.
 
