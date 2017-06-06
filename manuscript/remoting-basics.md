@@ -77,35 +77,35 @@ Algunas notas importantes:
 
 **Tenga cuidado** al abrir PowerShell en un equipo que tenga habilitado el control de cuenta de usuario (UAC), asegúrese de hacer clic con el botón derecho en el icono de PowerShell y seleccione “Ejecutar como administrador”. Si la barra de título de la ventana PowerShell resultante no comienza con la palabra Administrador: entonces no tiene privilegios administrativos. Puede comprobar los permisos de forma programática con esto _(whoami /all | select-string S-1-16-12288) -ne $null_ en una consola de PowerShell. En un Shell con permisos de administrador se devuelve **True**, de lo contrario será **False**.
 
-## Enabling Remoting
+## Habilitando Remoting
 
-We began by running Enable-PSRemoting on all six computers. We took care to ensure that the command ran without error; any errors at this point are a signal that you must stop and resolve the error before attempting to proceed. Figure 1.3 shows the expected output.
+Comenzamos ejecutando Enable-PSRemoting en las seis computadoras. Debemos asegurarnos que el comando finaliza sin errores. Cualquier error en este punto es una señal para se detenga y resuelva el error antes de intentar continuar. La figura 1.3 muestra la salida esperada.
 
 ![image005.png](images/image005.png)
 
-Figure 1.3: Expected output from Enable-PSRemoting
+Figura 1.3: salida esperada de Enable-PSRemoting
 
-**Note:** You'll notice profligate use of screen shots throughout this guide. It helps ensure that I don't make any typos or copy/paste errors - you're seeing exactly what we typed and ran.
+**Nota**: Observara un uso desmedido de capturas de pantalla a lo largo de esta guía. Me permiten asegurar que no cometo errores ortográficos o  errores del tipo copiar/pegar. Verá exactamente lo que escribimos y los resultados de su ejecución.
 
-Running Get-PSSessionConfiguration should reveal the three or four endpoints created by Enable-PSRemoting. Figure 1.4 shows the expected output on a server.
+Ejecutar Get-PSSessionConfiguration debe revelar los tres o cuatro EndPoints creados por Enable-PSRemoting. La figura 1.4 muestra la salida esperada en uno de los servidores.
 
 ![image006.png](images/image006.png)
 
-Figure 1.4: Expected output from Get-PSSessionConfiguration
+Figura 1.4: Salida esperada de Get-PSSessionConfiguration
 
-**Note:** Figure 1.4 illustrates that you can expect different endpoints to be configured on different machines. This example was from a Windows Server 2008 R2 computer, which has fewer endpoints than a Windows 2012 machine.
+**Nota**: la figura 1.4 ilustra que se puede esperar que diferentes EndPoints se configuren en diferentes máquinas. Este ejemplo fue con un servidor Windows 2008 R2 equipo, que tiene menos EndPoints que una máquina con Windows 2012.
 
-It's worth taking a moment to quickly test the Remoting configuration. For computers that are all part of the same domain, when you're logged on as a Domain Admin from that domain, Remoting should "just work." Quickly check it by attempting to remote from one computer to another using Enter-PSSession. 
+Vale la pena tomar un momento para comprobar rápidamente la configuración de Remoting. Para los equipos que forman parte del mismo dominio, al iniciar sesión como administrador de dominio de ese dominio, el sistema de comunicación remota debería "funcionar". Compruébelo rápidamente conectarse de una computadora a otra usando Enter-PSSession. 
 
-**Note:** In other environments, a Domain Admin account may not be the only account that can use Remoting.  If your home or work environment has additional accounts in the local Administrators group as standard across your domain, you will also be able to use these accounts for Remoting.
+**Nota**: en otros entornos, es posible que una cuenta de administrador de dominio no sea la única que pueda usar Remoting. Si en su hogar o entorno de trabajo se tienen cuentas adicionales en el grupo de administradores locales como estándar en su dominio, también podrá utilizar esas cuentas para realizar llamadas remotas.
 
-Figure 1.5 shows the expected output, in which we also ran a quick Dir command and then exited the remote session.
+La figura 1.5 muestra la salida esperada, en la que también ejecutamos un comando dir rápido y luego salimos de la sesión remota.
 
 ![image007.png](images/image007.png)
 
-Figure 1.5: Checking remoting connectivity from COMPANY.loc's CLIENTA to the DCA domain controller.
+Figura 1.5: comprobación de la conectividad remota desde el cliente al controlador de dominio DCA.
 
-**Caution:** If you're following along in your own test environment, don't proceed until you've confirmed Remoting connectivity between two computers in the same domain. No other scenario needs to work right now; we'll get to them in the upcoming sections.
+**Precaución**: si está configurando su propio entorno de pruebas, no continúe hasta que haya confirmado la conectividad de los sistemas remotos entre dos equipos del mismo dominio. Por ahora no necesitamos comprobar otros escenarios.
 
 ## Core Remoting Tasks
 
