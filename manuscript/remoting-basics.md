@@ -75,7 +75,7 @@ Algunas notas importantes:
 
 - Creamos un sexto servidor completamente independiente que no está en ningún dominio. Esto será útil para cubrir algunas de las situaciones que no son de dominio con las que puede encontrarse en un sistema de comunicación remota.
 
-**Tenga cuidado** al abrir PowerShell en un equipo que tenga habilitado el control de cuenta de usuario (UAC), asegúrese de hacer clic con el botón derecho en el icono de PowerShell y seleccione “Ejecutar como administrador”. Si la barra de título de la ventana PowerShell resultante no comienza con la palabra Administrador: entonces no tiene privilegios administrativos. Puede comprobar los permisos de forma programática con esto _(whoami /all | select-string S-1-16-12288) -ne $null_ en una consola de PowerShell. En un Shell con permisos administrador se devuelve **true**, de lo contrario será **false**.
+**Tenga cuidado** al abrir PowerShell en un equipo que tenga habilitado el control de cuenta de usuario (UAC), asegúrese de hacer clic con el botón derecho en el icono de PowerShell y seleccione “Ejecutar como administrador”. Si la barra de título de la ventana PowerShell resultante no comienza con la palabra Administrador: entonces no tiene privilegios administrativos. Puede comprobar los permisos de forma programática con esto _(whoami /all | select-string S-1-16-12288) -ne $null_ en una consola de PowerShell. En un Shell con permisos de administrador se devuelve **True**, de lo contrario será **False**.
 
 ## Enabling Remoting
 
