@@ -55,27 +55,27 @@ Tabla 1.1 comparando las maneras de habilitar Remoting
 
 Estaremos habilitando la administración remota en nuestro entorno de prueba ejecutando **Enable-PSRemoting**. Es rápido, fácil e incluye todo lo necesario. También vera una gran cantidad de tareas manuales a realizar en las siguientes secciones.
 
-## Test Environment
+## Entorno de pruebas
 
-We'll be using a consistent test environment throughout the following sections; this was created on six virtual machines at _CloudShare.com_, and is configured as shown in figure 1.2.
+Usaremos un entorno de pruebas consistente en las siguientes secciones. Consiste en seis máquinas virtuales en _cloudshare.com_ configuradas como se muestra en la figura 1.2.
 
 ![image004.png](images/image004.png)
 
-Figure 1.2: Test environment configuration
+Figura 1.2: configuración del entorno de pruebas
 
-Some important notes:
+Algunas notas importantes:
 
-■    .NET Framework v4 and PowerShell 3.0 is installed on all computers. Most of what we'll cover also applies to PowerShell 2.0.
+- .NET Framework v4 y PowerShell 3.0 están instalados en todos los equipos. La mayor parte de lo que cubriremos también se aplica a PowerShell 2.0.
 
-■    As shown, most computers have a numeric computer name (C2108222963, and so on); the domain controller for each domain (which is also a DNS server) has CNAME records with easier-to-remember names.
+- Como se muestra, la mayoría de las computadoras tienen un nombre de computadora numérico (c2108222963, y así sucesivamente); El controlador de dominio para cada dominio (que también es un servidor DNS) tiene registros CNAME con nombres más fáciles de recordar.
 
-■    Each domain controller has a conditional forwarder set up for the other domain, so that machines in either domain can resolve computer names in the other domain.
+- Cada controlador de dominio tiene un reenviador condicional configurado para el otro dominio, de modo que las máquinas de cualquiera de los dominios puedan resolver nombres de equipos en el otro dominio.
 
-■    We performed all tasks as a member of the Domain Admins group, unless noted otherwise.
+- Realizamos todas las tareas como miembro del grupo de administradores del dominio, a menos que se indique lo contrario.
 
-■    We created a sixth, completely standalone server that isn't in any domain at all. This will be useful for covering some of the non-domain situations you can find yourself in with Remoting.
+- Creamos un sexto servidor completamente independiente que no está en ningún dominio. Esto será útil para cubrir algunas de las situaciones que no son de dominio con las que puede encontrarse en un sistema de comunicación remota.
 
-**Caution** When opening PowerShell on a computer that has User Account Control (UAC) enabled, make sure you right-click the PowerShell icon and select **Run as Administrator**. If the resulting PowerShell window's title bar doesn't begin with **Administrator:** then you do not have administrative privileges. You can check permissions programmatically with this _(whoami /all | select-string S-1-16-12288) -ne $null_ from the PowerShell console. In an elevated shell **True** is returned, otherwise **False** is.
+**Tenga cuidado** al abrir PowerShell en un equipo que tenga habilitado el control de cuenta de usuario (UAC), asegúrese de hacer clic con el botón derecho en el icono de PowerShell y seleccione “Ejecutar como administrador”. Si la barra de título de la ventana PowerShell resultante no comienza con la palabra Administrador: entonces no tiene privilegios administrativos. Puede comprobar los permisos de forma programática con esto _(whoami /all | select-string S-1-16-12288) -ne $null_ en una consola de PowerShell. En un Shell con permisos administrador se devuelve **true**, de lo contrario será **false**.
 
 ## Enabling Remoting
 
