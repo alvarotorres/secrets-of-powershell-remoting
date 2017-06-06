@@ -1,11 +1,8 @@
 # Secretos de PowerShell Remoting
 Autor principal: Don Jones
-
 Autor colaborador: Dr. Tobias Weltner
-
-Con contribuciones de Dave Wyatt y Aleksandar Nikolik
-
-Diseño de portada por Nathan Vonnahme
+Contribuciones de: Dave Wyatt y Aleksandar Nikolik
+Diseño de portada: Nathan Vonnahme
 
 ---
 
