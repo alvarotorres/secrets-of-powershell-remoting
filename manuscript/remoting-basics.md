@@ -107,19 +107,18 @@ Figura 1.5: comprobación de la conectividad remota desde el cliente al controla
 
 **Precaución**: si está configurando su propio entorno de pruebas, no continúe hasta que haya confirmado la conectividad de los sistemas remotos entre dos equipos del mismo dominio. Por ahora no necesitamos comprobar otros escenarios.
 
-## Core Remoting Tasks
+## Tareas “core” de Remoting
 
-PowerShell provides for two principal Remoting use cases. The first, 1-to-1 Remoting, is similar in nature to the SSH secure shell offered on UNIX and Linux systems. With it, you get a command-line prompt on a single remote computer. The second, 1-to-Many Remoting, enables you to send a command (or a list of commands) in parallel to a set of remote computers. There are also a couple of useful secondary techniques we'll look at.
+PowerShell proporciona dos escenarios principales para el uso de Remoting. El primero, Remoting 1-a-1, es similar en su naturaleza  al shell SSH disponible en sistemas UNIX y Linux. Con él, obtendrá acceso a una línea de comandos en un único equipo remoto. El segundo, Remoting  1-a-muchos, permite enviar un comando (o una lista de comandos) en paralelo, a un conjunto de equipos remotos. Hay otro par de técnicas secundarias útiles que veremos más adelante.
 
-### 1-to-1 Remoting
-
-The Enter-PSSession command connects to a remote computer and gives you a command-line prompt on that computer. You can run whatever commands are on that computer, provided you have permission to perform that task. Note that you are not creating an interactive logon session; your connection will be audited as a network logon, just as if you were connecting to the computer's C$ administrative share. PowerShell will not load or process profile scripts on the remote computer. Any scripts that you choose to run (and this includes importing script modules) will only work if the remote machine's Execution Policy permits it.
+### Remoting 1-a-1 
+El comando Enter-PSSession se conecta a un equipo remoto y permite el acceso a una línea de comandos en ese equipo. Puede ejecutar cualquier comando en dicho equipo, siempre y cuando tenga permiso para realizar esa tarea. Tenga en cuenta que no está creando un inicio de sesión interactivo. La conexión se auditará como un inicio de sesión de red, al igual que si se estuviera conectando al recurso compartido administrativo C$ de la computadora. PowerShell no cargará ni procesará las secuencias de comandos del perfil de usuario en el equipo remoto. Cualquier script que elija ejecutar (y esto incluye la importación de módulos de script) sólo funcionará si la política de ejecución de la máquina remota lo permite.
 
 ```
 Enter-PSSession -computerName DC01
 ```
 
-**Note:** While connected to a remote machine via Enter-PSSession, your prompt changes and displays the name of the remote system in square brackets. If you have customized your prompt, all customizations will be lost because the prompt is now created on the remote system and transferred back to you. All of your interactive keyboard input is sent to the remote machine, and all results are marshaled back to you. This is important to note because you cannot use Enter-PSSession in a script. If you did, the script would still run on your local machine since no code was entered interactively.
+**Nota**: Mientras esté conectado a una máquina remota a través de Enter-PSSession, el “prompt” de la línea de comandos cambia y muestra el nombre del sistema remoto al que está conectado entre corchetes. Si ha personalizado su “prompt”, todas esas personalizaciones se perderán porque el “prompt” se creará en el sistema remoto y se transferirá de regreso a usted. Todas las entradas de teclado se envían a la máquina remota, y todos los resultados son devueltos a usted. Es importante tener en cuenta esto porque no puede utilizar Enter-PSSession en un script. Si lo hace, el script seguiría ejecutándose en su máquina local, ya que no se ingresó ningún código (en el teclado) de forma interactiva.
 
 ### 1-to-Many Remoting
 
