@@ -24,15 +24,15 @@ De forma predeterminada, Remoting utiliza Kerberos, un protocolo de autenticaci�
 
 Además, Remoting nunca almacena credenciales en ningún almacenamiento persistente de forma predeterminada. Una máquina remota nunca tiene acceso a las credenciales de un usuario. Sólo tiene acceso a un token de seguridad delegado (un "ticket" de Kerberos), que se almacena en la memoria volátil que no puede, por diseño del Sistema Operativo, ser escrito en el disco - incluso en el archivo de página (page file) del Sistema Operativo. El servidor presenta ese token al Sistema Operativo al ejecutar comandos, haciendo que el comando sea ejecutado con la autoridad del usuario original que invoca- y nada más
 
-## Remoting Uses Encryption
+## Remoting utiliza el cifrado
 
-Most Remoting-enabled applications apply their own encryption to their application-level traffic sent over Remoting. However, Remoting can also be configured to use HTTPS (certificate-encrypted connections), and can be configured to make HTTPS mandatory. This encrypts the entire channel using high-level encryption, while also ensuring mutual authentication of both client and server.
+La mayoría de las aplicaciones habilitadas para Remoting aplican su propia encriptación a su tráfico a nivel de aplicación enviado a través de Remoting. Sin embargo, Remoting también puede configurarse para utilizar HTTPS (conexiones con cifrado de certificado) y puede configurarse para que HTTPS sea obligatorio. Esto cifra todo el canal utilizando cifrado de alto nivel, al tiempo que garantiza la autenticación mutua tanto del cliente como del servidor.
 
-## Remoting is Security-Transparent
+## Remoting es transparente para la seguridad
 
-As stated, Remoting neither adds anything to, nor takes anything away from, your existing security configuration. Remote commands are executed using the delegated credentials of whatever user invoked the commands, meaning they can only do what they have permission to do - and what they could presumably do through a half-dozen other tools anyway. Whatever auditing you have in place in your environment cannot be bypassed by Remoting. Unlike many past "remote execution" solutions, Remoting does not operate under a single "super-privileged" account unless you expressly configure it that way (which requires several steps and cannot possibly by accomplished accidentally, as it requires the creation of custom endpoints).
+Como se ha indicado, Remoting ni añade nada ni quita nada a su configuración de seguridad existente. Los comandos remotos se ejecutan utilizando las credenciales delegadas de cualquier usuario que invoque los comandos, lo que significa que sólo pueden hacer lo que tienen permiso para hacer, y lo que podrían presumiblemente hacer con media docena de otras herramientas de todos modos. Cualquiera que sea la auditoría que tenga en su entorno no puede ser ignorada por Remoting. A diferencia de muchas soluciones anteriores de "ejecución remota", Remoting no funciona bajo una cuenta "super-privilegiada" a menos que la configure de esa manera (lo que requiere varios pasos y no puede lograrse accidentalmente, ya que requiere la creación de EndPoints personalizados).
 
-Remember: Anything someone can do via Remoting, they can already do in a half-dozen other ways. Remoting simply provides a more consistent, controllable, and scalable means of doing so.
+Recuerde: cualquier cosa que alguien puede hacer a través de Remoting, ya la puede hacer a través de media docena de formas diferentes. Remoting simplemente proporciona como un medio más consistente, controlable y escalable de hacerlo
 
 ## Remoting is Lower Overhead
 
