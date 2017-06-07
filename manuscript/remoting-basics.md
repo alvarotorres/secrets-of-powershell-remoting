@@ -136,11 +136,11 @@ Invoke-Command -computername DC01,CLIENT1 -filePath c:\Scripts\Task.ps1
 
 Tenga en cuenta que Invoke-Command, de forma predeterminada, se comunicará con hasta 32 equipos a la vez. Si especifica más, los equipos extra se pondrán en cola e Invoke-Command comenzará a procesarlos al terminar los primeros 32. El parámetro -ThrottleLimit puede aumentar este límite. El único costo es para su computadora, ya que debe tener recursos suficientes para mantener una sesión única de PowerShell para cada equipo al que esté contactando simultáneamente. Si espera recibir grandes cantidades de datos de los equipos remotos, el ancho de banda de red disponible puede ser otro factor limitante.
 
-### Sessions
+### Sesiones
 
-When you run Enter-PSSession or Invoke-Command and use their -ComputerName parameter, Remoting creates a connection (or session), does whatever you've asked it to, and then closes the connection (in the case of an interactive session created with Enter-PSSession, PowerShell knows you're done when you run Exit-PSSession). There's some overhead involved in that set-up and tear-down, and so PowerShell also offers the option of creating a persistent connection - called a PSSession. You run New-PSSession to create a new, persistent session. Then, rather than using -ComputerName with Enter-PSSession or Invoke-Command, you use their -Session parameter and pass an existing, open PSSession object. That lets the commands re-use the persistent connection you'd previously created.
+Cuando ejecuta Enter-PSSession o Invoke-Command y utiliza el parámetro -ComputerName, Remoting crea una conexión (o sesión), hace lo que se le pidió y luego cierra la conexión (en el caso de una sesión interactiva creada con Enter-PSSession, PowerShell sabe que ha terminado cuando ejecuta Exit-PSSession). Hay algunas sobrecargas involucradas en esa configuración y arranque, por lo que PowerShell también ofrece la opción de crear una conexión persistente, llamada PSSession. Se ejecuta New-PSSession para crear una sesión nueva y persistente. Entonces, en lugar de usar -ComputerName con Enter-PSSession o Invoke-Command, utilice su parámetro -Session y pase un objeto PSSession existente y abierto. Esto permite a los comandos volver a utilizar la conexión persistente que se había creado anteriormente.
 
-When you use the -ComputerName parameter and work with ad-hoc sessions, each time you send a command to a remote machine, there is a significant delay caused by the overhead it takes to create a new session. Since each call to Enter-PSSession or Invoke-Command sets up a new session, you also cannot preserve state. In the example below, the variable $test is lost in the second call:
+Cuando utiliza el parámetro -ComputerName y trabaja con sesiones “ad hoc”, cada vez que envía un comando a una máquina remota, hay un retraso significativo causado por la sobrecarga que se tarda en crear una nueva sesión. Como cada llamada a Enter-PSSession o Invoke-Command configura una nueva sesión, tampoco se puede conservar el estado. En el ejemplo siguiente, la variable $test se pierde en la segunda llamada:
 
 ```
 PS> Invoke-Command -computername CLIENT1 -scriptBlock { $test = 1 }
@@ -148,7 +148,7 @@ PS> Invoke-Command -computername CLIENT1 -scriptBlock { $test }
 PS>
 ```
 
-When you use persistent sessions, on the other hand, re-connections are much faster, and since you are keeping and reusing sessions, they will preserve state. So here, the second call to Invoke-Command will still be able to access the variable $test that was set up in the first call
+Cuando se utilizan sesiones persistentes, por otro lado, las re-conexiones son mucho más rápidas, y puesto que se están manteniendo y reutilizando las sesiones, se conservará el estado. Así que aquí, en la segunda llamada a Invoke-Command todavía podrá acceder a la variable $test que se configuró en la primera llamada.
 
 ```
 PS> $Session = New-PSSession -ComputerName CLIENT1
@@ -158,9 +158,9 @@ PS> Invoke-Command -Session $Session -scriptBlock { $test }
 PS> Remove-PSSession -Session $Session
 ```
 
-Various other commands exist to check the session's status and retrieve sessions (Get-PSSession), close them (Remove-PSSession), disconnect and reconnect them (Disconnect-PSSession and Reconnect-PSSession, which are new in PowerShell v3), and so on. In PowerShell v3, you can also pass an open session to Get-Module and Import-Module, enabling you to see the modules listed on a remote computer (via the opened PSSession), or to import a module from a remote computer into your computer for implicit Remoting. Review the help on those commands to learn more.
+Existen otros comandos para verificar el estado de la sesión y recuperar sesiones (Get-PSSession), cerrarlos (Remove-PSSession), desconectar y volver a conectarlos (Disconnect-PSSession y Reconnect-PSSession, agregados en PowerShell v3), etc. En PowerShell v3, también puede pasar una sesión abierta a Get-Module e Import-Module, lo que le permite ver los módulos listados en una computadora remota (a través de la PSSession abierta) o importar un módulo desde una computadora remota a su computadora. Revise la ayuda de esos comandos para obtener más información.
 
-Note: Once you use New-PSSession and create your own persistent sessions, it is your responsibility to do housekeeping and close and dispose the session when you are done with them. Until you do that, persistent sessions remain active, consume resources and may prevent others from connecting. By default, only 10 simultaneous connections to a remote machine are permitted. If you keep too many active sessions, you will easily run into resource limits. This line demonstrates what happens if you try and set up too many simultaneous sessions:
+**Nota**: Una vez que utilice New-PSSession y cree sus propias sesiones persistentes, es su responsabilidad “hacer el trabajo” y luego cerrar la sesión cuando haya terminado. Hasta que lo haga, las sesiones persistentes permanecen activas, consumen recursos y pueden impedir que otros se conecten. De forma predeterminada, sólo se permiten 10 conexiones simultáneas a una máquina remota. Si mantiene demasiadas sesiones activas, se encontrará fácilmente al borde de los límites de recursos. Esta línea muestra lo que sucede si intenta configurar demasiadas sesiones simultáneas:
 
 ```
 PS> 1..10 | Foreach-Object { New-PSSession -ComputerName CLIENT1 }
