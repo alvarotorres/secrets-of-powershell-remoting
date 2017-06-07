@@ -166,21 +166,21 @@ Existen otros comandos para verificar el estado de la sesión y recuperar sesion
 PS> 1..10 | Foreach-Object { New-PSSession -ComputerName CLIENT1 }
 ```
 
-## Remoting Returns Deserialized Data
+## Remoting devuelve datos deserializados
 
-The results you receive from a remote computer have been serialized into XML, and then deserialized on your computer. In essence, the objects placed into your shell's pipeline are static, detached snapshots of what was on the remote computer at the time your command completed. These deserialized objects lack the methods of the originals objects, and instead only offer static properties.
+Los resultados que recibe de una computadora remota se han serializado en XML y luego se han deserializado en su computadora. En esencia, los objetos colocados en el pipeline de su shell son instantáneas estáticas y separadas de lo que estaba en el equipo remoto en el momento en que se completó el comando. Estos objetos deserializados carecen de los métodos de los objetos originales, y en cambio solo ofrecen propiedades estáticas.
 
-If you need to access methods or change properties, or in other words if you must work with the live objects, simply make sure you do so on the remote side, before the objects get serialized and travel back to the caller. This example uses object methods on the remote side to determine process owners which works just fine:
+Si necesita acceder a métodos o cambiar propiedades, o en otras palabras, si debe trabajar con los objetos en vivo, asegúrese de hacerlo en el lado remoto, antes de que los objetos se serialicen y regresen al llamador. Este ejemplo utiliza métodos de objeto en el lado remoto para determinar los propietarios de un proceso que funciona bien:
 
 ```
 PS> Invoke-Command -ComputerName CLIENT1 -scriptBlock { Get-WmiObject -Class Win32_Process | Select-Object Name, { $_.GetOwner().User } }
 ```
-Once the results travel back to you, you can no longer invoke object methods because now you work with "rehydrated" objects that are detached from the live objects and do not contain any methods anymore:
+Una vez que los resultados vuelven a usted, ya no puede invocar métodos de objetos porque ahora trabaja con objetos "rehidratados", diferentes a los “objetos vivos” por lo que ahora ya no pueden acceder a sus métodos:
 
 ```
 PS> Invoke-Command -ComputerName CLIENT1 -scriptBlock { Get-WmiObject -Class Win32_Process } | Select-Object Name, { $_.GetOwner().User }
 ```
-Serializing and deserializing is relatively expensive. You can optimize speed and resources by making sure that your remote code emits only the data you really need. You could for example use Select-Object and carefully pick the properties you want back rather than serializing and deserializing everything.
+Serializar y deserializar es relativamente costoso. Puede optimizar la velocidad y los recursos asegurándose de que su código remoto emita sólo los datos que realmente necesita. Por ejemplo, puede utilizar Select-Object y seleccionar cuidadosamente las propiedades que desea volver en lugar de serializar y deserializar todo.
 
 ## Enter-PSSession vs. Invoke-Command
 
