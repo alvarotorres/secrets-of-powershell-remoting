@@ -34,11 +34,11 @@ Como se ha indicado, Remoting ni añade nada ni quita nada a su configuración d
 
 Recuerde: cualquier cosa que alguien puede hacer a través de Remoting, ya la puede hacer a través de media docena de formas diferentes. Remoting simplemente proporciona como un medio más consistente, controlable y escalable de hacerlo
 
-## Remoting is Lower Overhead
+## Remoting es una sobrecarga menor
 
-Unlike Remote Desktop Connection (RDC, which many Administrators currently use to manage remote servers), Remoting is very low-overhead. It does not require the server to spin up an entire graphical operating environment, impacting server performance and memory management. Remoting is also more scalable, enabling authorized users (mainly Administrators in most cases) to execute commands against multiple servers at once - which improves consistency and reduces error, while also speeding up response times and lowering administrative overhead.
+A diferencia de Remote Desktop Connection (RDC, que muchos Administradores utilizan actualmente para administrar servidores remotos), Remoting es una carga menor. No requiere que el servidor genere un entorno operativo gráfico entero, lo que afecta el rendimiento del servidor y la gestión de la memoria. El control remoto también es más escalable, permitiendo a los usuarios autorizados (principalmente administradores en la mayoría de los casos) ejecutar comandos contra varios servidores a la vez, lo que mejora la coherencia y reduce el error, al tiempo que acelera los tiempos de respuesta y reduce los gastos administrativos.
 
-Remoting is Microsoft's way forward. To not use Remoting is to deliberately attempt to use Windows in a way that it was explicitly designed not to do. You will reduce, not improve your security, while also increasing operational overhead, enabling greater instance of human error, and reducing server performance. Microsoft Administrators have for decades been toiling under an operational paradigm that was wrong-headed and short-sighted; Remoting is finally delivering to Windows the administrative model that every other network operating system has used for years, if not decades.
+Remoting es el camino a seguir de Microsoft. No utilizar Remoting es intentar usar deliberadamente Windows de una manera para la que no que fue diseñado. Reducirá, no mejorará su seguridad, al mismo tiempo que aumentará la sobrecarga operacional, lo que permitirá mayores errores humanos y reducirá el rendimiento del servidor. Los Administradores de Microsoft han trabajado durante décadas bajo un paradigma operacional que estaba mal dirigido y era miope. Remoting está finalmente entregando a Windows el modelo administrativo que todos los sistemas operativos de red han utilizado durante años, si no décadas.
 
 ## Remoting Uses Mutual Authentication
 
