@@ -193,7 +193,7 @@ C:\RemoteTest.ps1
 
 Si se sentara y escribiera estos comandos de forma interactiva en la ventana de comandos de su equipo cliente, funcionaría (suponiendo que se configurara el sistema, tuvieran permisos y todo eso). Sin embargo, si los pegó en un script y ejecutó ese script, no funcionaría. El script intentaría ejecutar C:\RemoteTest.ps1 _en su equipo local_.
 
-El resultado práctico de esto es que Enter-PSSession _está realmente destinado a un uso interactivo por parte de un ser humano, y no a un uso por lotes de un script. Si desea enviar un comando a una computadora remota, desde dentro de una secuencia de comandos, Invoke-Command es la forma correcta de hacerlo. Puede configurar una sesión de antemano (útil si va a enviar más de un comando) o puede utilizar un nombre de equipo si sólo desea enviar un solo comando. Por ejemplo_:
+El resultado práctico de esto es que Enter-PSSession _está realmente destinado a un uso interactivo por parte de un ser humano, y no a un uso por lotes de un script. Si desea enviar un comando a una computadora remota, desde dentro de una secuencia de comandos, Invoke-Command es la forma correcta de hacerlo._ Puede configurar una sesión de antemano (útil si va a enviar más de un comando) o puede utilizar un nombre de equipo si sólo desea enviar un solo comando. Por ejemplo:
 
 ```
 $session = New-PSSession -ComputerName SERVER2  
