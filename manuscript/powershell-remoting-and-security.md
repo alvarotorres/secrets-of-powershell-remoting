@@ -12,11 +12,11 @@ Conclusión: Debido a la forma en que funciona, PowerShell Remoting no permite q
 
 Además, PowerShell ofrece una mejor oportunidad para limitar incluso a los administradores. Un EndPoint Remoting (o la configuración de la sesión) se puede modificar para permitir que sólo los usuarios especificados se conecten a él. Una vez conectado, el EndPoint puede restringir más los comandos que esos usuarios pueden ejecutar. Esto proporciona una oportunidad mucho mejor para la administración delegada. En lugar de hacer que los administradores inicien sesión en las consolas y hagan lo que les plazca, puede hacer que se conecten a EndPoints restringidos y seguros y que sólo completen las tareas específicas que el EndPoint permite
 
-## PowerShell Remoting is Not Optional
+  ## PowerShell Remoting no es opcional
 
-As of Windows Server 2012, PowerShell Remoting is enabled by default and is mandatory for server management. Even when running a graphical management console locally on a server, the console still "goes out" and "back in" via Remoting to accomplish its tasks. Without Remoting, server administration is impossible. Organizations are therefore well-advised to start immediately finding a way to include Remoting in their permitted protocols. Otherwise, critical services will not be able to be managed, even through Remote Desktop or directly on the server console.
+A partir de Windows Server 2012, PowerShell Remoting está habilitado de forma predeterminada y es obligatorio para la administración del servidor. Incluso cuando se ejecuta una consola de administración gráfica localmente en un servidor, la consola todavía "envía" y "responde" a través de Remoting para realizar sus tareas. Sin Remoting, la administración del servidor es imposible. Por lo tanto, las organizaciones están bien informadas para comenzar inmediatamente a encontrar una forma de incluir Remoting en sus protocolos permitidos. De lo contrario, los servicios críticos no podrán ser administrados, ni siquiera a través de Escritorio remoto o directamente en la consola del servidor.
 
-This approach actually helps better secure the data center. Because local administration is exactly the same as remote administration (via Remoting), there's no longer any reason to physically or remotely access server consoles. The consoles can thus remain more locked down and secured, and Administrators can stay out of the data center entirely.
+Este enfoque realmente ayuda a proteger mejor los centros de datos. Debido a que la administración local es exactamente la misma que la administración remota (a través de Remoting), ya no hay ninguna razón para acceder físicamente o de forma remota a las consolas de servidor. Las consolas pueden así permanecer más bloqueadas y protegidas, y los administradores pueden permanecer fuera del centro de datos por completo.
 
 ## Remoting Does Not Transmit or Store Credentials
 
