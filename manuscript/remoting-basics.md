@@ -184,22 +184,22 @@ Serializar y deserializar es relativamente costoso. Puede optimizar la velocidad
 
 ## Enter-PSSession vs. Invoke-Command
 
-A lot of newcomers will get a bit confused about remoting, in part because of how PowerShell executes scripts. Consider the following, and assume that SERVER2 contains a script named C:\RemoteTest.ps1:
+Muchos de los recién llegados pueden confundirse un poco acerca de la comunicación remota, en parte debido a cómo PowerShell ejecuta los scripts. Tenga en cuenta lo siguiente y asuma que SERVER2 contiene una secuencia de comandos denominada C:\RemoteTest.ps1:
 
 ```
 Enter-PSSession -ComputerName SERVER2  
 C:\RemoteTest.ps1
 ```
 
-If you were to sit and type these commands interactively in the console window on your client computer, this would work (assuming remoting was set up, you had permissions, and all that). However, if you pasted these into a script and ran that script, it wouldn't work. The script would try to run C:\RemoteTest.ps1 _on your local computer. _
+Si se sentara y escribiera estos comandos de forma interactiva en la ventana de comandos de su equipo cliente, funcionaría (suponiendo que se configurara el sistema, tuvieran permisos y todo eso). Sin embargo, si los pegó en un script y ejecutó ese script, no funcionaría. El script intentaría ejecutar C:\RemoteTest.ps1 _en su equipo local_.
 
-The practical upshot of this is that Enter-PSSession is really meant for _interactive use by a human being, _ not for batch use by a script. If you wanted to send a command to a remote computer, from within a script, Invoke-Command is the right way to do it. You can either set up a session in advance (useful if you plan to send more than one command), or you can use a computer name if you only want to send a single command. For example:
+El resultado práctico de esto es que Enter-PSSession _está realmente destinado a un uso interactivo por parte de un ser humano, y no a un uso por lotes de un script. Si desea enviar un comando a una computadora remota, desde dentro de una secuencia de comandos, Invoke-Command es la forma correcta de hacerlo. Puede configurar una sesión de antemano (útil si va a enviar más de un comando) o puede utilizar un nombre de equipo si sólo desea enviar un solo comando. Por ejemplo_:
 
 ```
 $session = New-PSSession -ComputerName SERVER2  
 Invoke-Command -session $session -ScriptBlock { C:\RemoteTest.ps1 }
 ```
 
-Obviously, you'll need to use some caution. If those were the _only_ two lines in the script, then when the script finished running, $session would cease to exist. That might disconnect you (in a sense) from the session running on SERVER2. What you do, and even whether you need to worry about it, depends a lot on what you're doing and how you're doing it. In this example, everything would _probably_ be okay, because Invoke-Command would "keep" the local script running until the remote script finished and returned its output (if any).
+Obviamente, tendrá que tener un poco de precaución. Si esas eran las dos únicas líneas en el script, entonces cuando el script termine de ejecutarse, $session dejaría de existir. Eso podría desconectar (en cierto sentido) de la sesión que se ejecuta en SERVER2. Los resultados dependen mucho de lo que hace y de cómo lo hace. En este ejemplo, todo estaría bien, porque Invoke-Command "mantendría" el script local en ejecución hasta que el script remoto terminara y devolviera su salida (si la hubiera).
 
 
