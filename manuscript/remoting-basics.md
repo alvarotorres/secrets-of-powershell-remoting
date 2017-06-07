@@ -120,21 +120,21 @@ Enter-PSSession -computerName DC01
 
 **Nota**: Mientras esté conectado a una máquina remota a través de Enter-PSSession, el “prompt” de la línea de comandos cambia y muestra el nombre del sistema remoto al que está conectado entre corchetes. Si ha personalizado su “prompt”, todas esas personalizaciones se perderán porque el “prompt” se creará en el sistema remoto y se transferirá de regreso a usted. Todas las entradas de teclado se envían a la máquina remota, y todos los resultados son devueltos a usted. Es importante tener en cuenta esto porque no puede utilizar Enter-PSSession en un script. Si lo hace, el script seguiría ejecutándose en su máquina local, ya que no se ingresó ningún código (en el teclado) de forma interactiva.
 
-### 1-to-Many Remoting
+### Remoting 1-a-muchos
 
-With this technique, you specify one or more computer names and a command (or a semicolon-separated list of commands); PowerShell sends the commands, via Remoting, to the specified computers. Those computers execute the commands, serialize the results into XML, and transmit the results back to you. Your computer deserializes the XML back into objects, and places them in the pipeline of your PowerShell session. This is accomplished via the Invoke-Command cmdlet.
+Con esta técnica, se especifican uno o más nombres de equipo y un comando (o una lista de comandos separados por punto y coma). PowerShell envía los comandos, a través de Remoting, a los equipos especificados. Esas computadoras ejecutan los comandos, serializan los resultados en XML y transmiten los resultados de vuelta. El equipo deserializa el XML de nuevo en objetos y los coloca en la canalización (pipeline) de la sesión de PowerShell. Esto se logra a través del Cmdlet Invoke-Command.
 
 ```
 Invoke-Command -computername DC01,CLIENT1 -scriptBlock { Get-Service }
 ```
 
-If you have a script of commands to run, you can have Invoke-Command read it, transmit the contents to the remote computers, and have them execute those commands.
+Si tiene una secuencia de comandos para ejecutar, puede hacer que Invoke-Command la lea, transmita el contenido a los equipos remotos y haga que se ejecuten dichos comandos.
 
 ```
 Invoke-Command -computername DC01,CLIENT1 -filePath c:\Scripts\Task.ps1
 ```
 
-Note that Invoke-Command will, by default, communicate with only 32 computers at once. If you specify more, the extras will queue up, and Invoke-Command will begin processing them as it finishes the first 32. The -ThrottleLimit parameter can raise this limit; the only cost is to your computer, which must have sufficient resources to maintain a unique PowerShell session for each computer you're contacting simultaneously. If you expect to receive large amounts of data from the remote computers, available network bandwidth can be another limiting factor.
+Tenga en cuenta que Invoke-Command, de forma predeterminada, se comunicará con hasta 32 equipos a la vez. Si especifica más, los equipos extra se pondrán en cola e Invoke-Command comenzará a procesarlos al terminar los primeros 32. El parámetro -ThrottleLimit puede aumentar este límite. El único costo es para su computadora, ya que debe tener recursos suficientes para mantener una sesión única de PowerShell para cada equipo al que esté contactando simultáneamente. Si espera recibir grandes cantidades de datos de los equipos remotos, el ancho de banda de red disponible puede ser otro factor limitante.
 
 ### Sessions
 
