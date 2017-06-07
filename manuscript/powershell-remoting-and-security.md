@@ -18,11 +18,11 @@ A partir de Windows Server 2012, PowerShell Remoting está habilitado de forma p
 
 Este enfoque realmente ayuda a proteger mejor los centros de datos. Debido a que la administración local es exactamente la misma que la administración remota (a través de Remoting), ya no hay ninguna razón para acceder físicamente o de forma remota a las consolas de servidor. Las consolas pueden así permanecer más bloqueadas y protegidas, y los administradores pueden permanecer fuera del centro de datos por completo.
 
-## Remoting Does Not Transmit or Store Credentials
+## Remoting no transmite ni almacena credenciales
 
-By default, Remoting uses Kerberos, an authentication protocol that does not transmit passwords across the network. Instead, Kerberos relies on passwords as an encryption key, ensuring that passwords remain safe. Remoting can be configured to use less-secure authentication protocols (such as Basic), but can also be configured to require certificate-based encryption for the connection.
+De forma predeterminada, Remoting utiliza Kerberos, un protocolo de autenticación que no transmite contraseñas a través de la red. En su lugar, Kerberos se basa en contraseñas con una clave de cifrado, asegurando que las contraseñas permanezcan seguras. Remoting puede configurarse para usar protocolos de autenticación menos seguros (como Basic), pero también puede configurarse para requerir el cifrado basado en certificados para la conexión.
 
-Further, Remoting never stores credentials in any persistent storage by default. A Remote machine never has access to a user's credentials; it has access only to a delegated security token (a Kerberos "ticket"). That is stored in volatile memory which cannot, by OS design, be written to disk - even to the OS page file. The server presents that token to the OS when executing commands, causing the command to be executed with the original invoking user's authority - and nothing more.
+Además, Remoting nunca almacena credenciales en ningún almacenamiento persistente de forma predeterminada. Una máquina remota nunca tiene acceso a las credenciales de un usuario. Sólo tiene acceso a un token de seguridad delegado (un "ticket" de Kerberos), que se almacena en la memoria volátil que no puede, por diseño del Sistema Operativo, ser escrito en el disco - incluso en el archivo de página (page file) del Sistema Operativo. El servidor presenta ese token al Sistema Operativo al ejecutar comandos, haciendo que el comando sea ejecutado con la autoridad del usuario original que invoca- y nada más
 
 ## Remoting Uses Encryption
 
