@@ -134,7 +134,7 @@ Finalmente, como se muestra en la figura 2.14, seleccione la huella digital del 
 
 ![image021.png](images/image021.png)
 
-Figure 2.14: Obtaining the certificate's thumbprint
+Figura 2.14: Validación de la huella digital del certificado
 
 #### Setting up the HTTPS Listener
 
