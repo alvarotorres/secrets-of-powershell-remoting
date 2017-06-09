@@ -80,57 +80,57 @@ Figura 2.6: Descarga del certificado emitido
 
 Asegúrese de hacer una copia de seguridad de los archivos de certificados. Aunque la mayoría de las CA las publicarían de nuevo de ser necesario, es mucho más fácil tener una copia de seguridad.
 
-#### Installing the Certificate
+#### Instalación del certificado
 
-Don't try to double-click the certificate file to install it. Doing so will install it into your user account's certificate store; you need it in your computer's certificate store instead. To install the certificate, open a new Microsoft Management Console \(mmc.exe\), select Add/Remove Snap-ins, and add the Certificates snap-in, as shown in figure 2.7.
+No intente hacer doble clic en el archivo de certificado para instalarlo. Si lo hace, lo instalará en el almacén de certificados de su cuenta de usuario. Lo necesita en el almacén de certificados de su computadora. Para instalar el certificado, abra una nueva consola de administración de Microsoft (mmc.exe), seleccione Agregar o quitar complementos y agregue el complemento Certificados, como se muestra en la figura 2.7.
 
 ![image014.png](images/image014.png)
 
-Figure 2.7: Adding the Certificates snap-in to the MMC
+Figura 2.7: Agregar el complemento Certificados a la MMC
 
-As shown in figure 2.8, focus the snap-in on the Computer account.
+Como se muestra en la figura 2.8, establezca el complemento en la cuenta de equipo.
 
 ![image015.png](images/image015.png)
 
-Figure 2.8: Focusing the Certificates snap-in on the Computer account
+Figura 2.8: Establecer el complemento Certificados en la cuenta de equipo
 
-Next, as shown in figure 2.9, focus on the local computer. Of course, if you're installing a certificate onto a remote computer, focus on that computer instead. This is a good way to get a certificate installed onto a GUI-less Server Core installation of Windows, for example.
+A continuación, como se muestra en la figura 2.9, establezca el equipo local. Por supuesto, si está instalando un certificado en una computadora remota, establezca esa computadora en su lugar. Esta es una buena forma de instalar un certificado en un ambiente Windows sin GUI como en un Server Core, por ejemplo.
 
-**Note:** We wish we could show you a way to do all of this from within PowerShell. But we couldn't find one that didn't involve a jillion more, and more complex, steps. Since this hopefully isn't something you'll have to do often, or automate a lot, the GUI is easier and should suffice.
+Nota: Quisiéramos poder mostrarle una forma de hacer todo esto desde PowerShell. No pudimos encontrar una que no implicara un montón de pasos más además de complejos. Dado que esto no es algo que tendrá que hacer a menudo o automatizarlo, la GUI es más fácil y debería ser suficiente.
 
 ![image016.png](images/image016.png)
 
-Figure 2.9: Focusing the Certificates snap-in on the local computer
+Figura 2.9: Establecer el complemento Certificados en el equipo local
 
-With the snap-in loaded, as shown in figure 2.10, right-click the "Personal" store and select "Import."
+Con el complemento cargado, como se muestra en la figura 2.10, haga clic con el botón derecho en el almacén "Personal" y seleccione "Import".
 
 ![image017.png](images/image017.png)
 
-Figure 2.10: Beginning the import process into the Personal store
+Figura 2.10: Inicio del proceso de importación en el almacén Personal
 
-As shown in figure 2.11, browse to the certificate file that you downloaded from your CA. Then, click Next.
+Como se muestra en la figura 2.11, vaya al archivo de certificado que descargó de su CA. A continuación, haga clic en Next.
 
-**Caution:** If you downloaded multiple certificates - perhaps the CA's root certificates along with the one issued to you - make sure you're importing the SSL certificate that was issued to you. If there's any confusion, STOP. Go back to your CA and download just YOUR certificate, so that you'll know which one to import. Don't experiment, here - you need to get this right the first time.
+**Precaución**: Si ha descargado varios certificados, tal vez los certificados raíz de la CA junto con el certificado, asegúrese de importar el certificado SSL que se le entregó. Si hay alguna confusión, PARE. Vuelva a su CA y descargue sólo su certificado, para que sepa cuál importar. No experimente, necesita realizar bien esto a la primera vez.
 
 ![image018.png](images/image018.png)
 
-Figure 2.11: Selecting the newly-issued SSL certificate file
+Figura 2.11: Selección del archivo de certificado SSL recién publicado
 
-As shown in figure 2.12, ensure that the certificate will be placed into the Personal store.
+Como se muestra en la figura 2.12, asegúrese de que el certificado se ubicará en el almacén Personal.
 
 ![image019.png](images/image019.png)
 
-Figure 2.12: Be sure to place the certificate into the Personal store, which should be pre-selected.
+Figura 2.12: Asegúrese de ubicar el certificado en el almacén Personal, que debe estar preseleccionado.
 
-As shown in figure 2.13, double-click the certificate to open it. Or, right-click and select Open. Do not select Properties - that won't get you the information you need.
+Como se muestra en la figura 2.13, haga doble clic en el certificado para abrirlo. O bien, haga clic con el botón derecho y seleccione Abrir. No seleccione Propiedades - no le proporcionará la información que necesita-.
 
 ![image020.png](images/image020.png)
 
-Figure 2.13: Double-click the certificate, or right-click and select Open
+Figura 2.13: Haga doble clic en el certificado o haga clic con el botón derecho del ratón y seleccione Open
 
-Finally, as shown in figure 2.14, select the certificate's thumbprint. You'll need to either write this down, or copy it to your Clipboard. This is how WinRM will identify the certificate you want to use.
+Finalmente, como se muestra en la figura 2.14, seleccione la huella digital del certificado. Deberá anotar esto o copiarlo en el Portapapeles. Así WinRM identificará el certificado que desea utilizar.
 
-**Note:** It's possible to list your certificate in PowerShell's CERT: drive, which will make the thumbprint a bit easier to copy to the Clipboard. In PowerShell, run Dir CERT:\LocalMachine\My and read carefully to make sure you select the right certificate. If the entire thumbprint isn't displayed, run Dir CERT:\LocalMachine\My \| FL \* instead.
+**Nota**: Es posible listar su certificado en la unidad CERT: de PowerShell, lo que hará que la huella digital sea más fácil de copiar en el Portapapeles. En PowerShell, ejecute Dir CERT:\LocalMachine\My. Asegúrese que selecciona el certificado correcto. Si no se muestra toda la huella digital, ejecute Dir CERT:\LocalMachine\My \| FL \* en su lugar.
 
 ![image021.png](images/image021.png)
 
