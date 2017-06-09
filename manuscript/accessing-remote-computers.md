@@ -5,7 +5,7 @@ Principalmente existen dos escenarios al acceder una computadora remota. La dife
 Obviamente, la máquina remota necesita saber quién es usted, porque estará ejecutando comandos en su nombre. Pero usted necesita saber quién es, también. Esta autenticación mutua, es un paso de seguridad importante. Significa que cuando escribe SERVER2, se está conectando realmente con el SERVER2 real, y no con alguna máquina haciéndose pasar por SERVER2. Mucha gente ha publicado artículos de blog sobre cómo deshabilitar las verificaciones de autenticación. Hacerlo, hace que Remoting " funcione" y se deshaga de los molestos mensajes de error, pero abre brechas de seguridad y hace posible que alguien "secuestre" o "falsifique" su conexión y potencialmente capture información confidencial como sus credenciales
 .
 
-**Precaución:** Tenga en cuenta que Remoting implica delegar una credencial en el equipo remoto. Usted está haciendo algo más que simplemente enviar un nombre de usuario y una contraseña (que en realidad no ocurre todo el tiempo). Está dando a la máquina remota la capacidad de ejecutar las tareas como si estuviera allí ejecutándolas usted mismo. Un impostor podría hacer mucho daño con ese poder. Es por eso que Remoting se enfoca en la autenticación mutua, para que los impostores no tengan esa oportunidad.
+**Precaución:** Tenga en cuenta que Remoting implica delegar una credencial en el equipo remoto. Usted está haciendo algo más que simplemente enviar un nombre de usuario y una contraseña \(que en realidad no ocurre todo el tiempo\). Está dando a la máquina remota la capacidad de ejecutar las tareas como si estuviera allí ejecutándolas usted mismo. Un impostor podría hacer mucho daño con ese poder. Es por eso que Remoting se enfoca en la autenticación mutua, para que los impostores no tengan esa oportunidad.
 
 En los escenarios de Remoting más sencillos, usted se conecta a una máquina que está en el mismo dominio de AD utilizando su nombre de equipo real, tal como está registrado en AD. AD maneja la autenticación mutua y todo funciona de maravilla. Pero las cosas se pueden poner un poco más difíciles en otros escenarios:
 
@@ -15,12 +15,12 @@ En los escenarios de Remoting más sencillos, usted se conecta a una máquina qu
 
 En estos casos, AD no puede hacer la autenticación mutua, por lo que tendrá que hacerlo usted mismo. En este punto tiene dos opciones:
 
-* Configurar la máquina remota para aceptar conexiones HTTPS (en lugar de HTTP) y equiparla con un certificado SSL. El Certificado SSL debe ser emitido por una Autoridad de Certificación (CA) en la que confíe la máquina. Esto permite que el certificado SSL proporcione la autenticación mutua que WinRM usara luego.
-* O, agregar el nombre de la máquina remota (lo que esté especificando, ya sea un nombre de equipo real, una dirección IP o un alias CNAME) a la lista de WinRM TrustedHosts de su equipo local. Tenga en cuenta que esto básicamente inhabilita la autenticación mutua, ya que permite a WinRM conectarse con ese identificador (nombre, dirección IP o lo que sea) sin utilizar la autenticación mutua. Esto abre la posibilidad para que una máquina pretenda ser la que usted desea, así que es mejor que tenga la debida precaución.
+* Configurar la máquina remota para aceptar conexiones HTTPS \(en lugar de HTTP\) y equiparla con un certificado SSL. El Certificado SSL debe ser emitido por una Autoridad de Certificación \(CA\) en la que confíe la máquina. Esto permite que el certificado SSL proporcione la autenticación mutua que WinRM usara luego.
+* O, agregar el nombre de la máquina remota \(lo que esté especificando, ya sea un nombre de equipo real, una dirección IP o un alias CNAME\) a la lista de WinRM TrustedHosts de su equipo local. Tenga en cuenta que esto básicamente inhabilita la autenticación mutua, ya que permite a WinRM conectarse con ese identificador \(nombre, dirección IP o lo que sea\) sin utilizar la autenticación mutua. Esto abre la posibilidad para que una máquina pretenda ser la que usted desea, así que es mejor que tenga la debida precaución.
 
 En ambos casos, también debe especificar un parámetro -Credential en el comando Remoting, aunque sólo esté especificando la misma credencial que está utilizando para ejecutar PowerShell. Cubriremos ambos casos en las siguientes dos secciones.
 
-**Nota:** A lo largo de esta guía, usaremos "Comando Remoting" para referirnos genéricamente a cualquier comando que implique la creación de una conexión Remoting. Estos incluyen (pero no se limitan a) New-PSSession, Enter-PSSession, Invoke-Command, y así sucesivamente.
+**Nota:** A lo largo de esta guía, usaremos "Comando Remoting" para referirnos genéricamente a cualquier comando que implique la creación de una conexión Remoting. Estos incluyen \(pero no se limitan a\) New-PSSession, Enter-PSSession, Invoke-Command, y así sucesivamente.
 
 ## Setting up an HTTPS Listener
 
