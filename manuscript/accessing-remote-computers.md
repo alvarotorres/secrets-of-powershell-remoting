@@ -169,56 +169,56 @@ Transport='HTTPS'} -ValueSet @{HostName='xxx';CertificateThumbprint='yyy'}
 
 En ese ejemplo, "xxx" y "yyy" se reemplazan como lo hicieron en el ejemplo anterior.
 
-#### Testing the HTTPS Listener
+#### Probando el HTTPS Listener
 
-I tested this from the standalone C3925954503 computer, attempting to reach the DCA domain controller in COMPANY.loc. I configured C3925954503 with a HOSTS file, so that it could resolve the hostname DCA to the correct IP address without needing DNS. I was sure to run:
+He probado esto desde el equipo C3925954503 independiente, tratando de llegar al controlador de dominio DCA en COMPANY.loc. He configurado C3925954503 en el archivo HOSTS, de modo que podría resolver el nombre de host DCA a la dirección IP correcta sin necesidad del DNS. Estaba seguro de que correría:
 
 ```
 Ipconfig /flushdns
 ```
 
-This ensured that the HOSTS file was read into the DNS name cache. The results are in figure 2.16. Note that I can't access DCA by using its IP address directly, because the SSL certificate doesn't contain an IP address. The SSL certificate was issued to "dca," so we need to be able to access the computer by typing "dca" as the computer name. Using the HOSTS file will let Windows resolve that to an IP address.
+Esto aseguró que el archivo HOSTS se leyó en el caché de nombres DNS. Los resultados se muestran en la figura 2.16. Tenga en cuenta que no puedo acceder a DCA utilizando directamente su dirección IP, porque el certificado SSL no contiene una dirección IP. El certificado SSL se emitió a "dca", por lo que tenemos que ser capaces de acceder a la computadora escribiendo "dca" como el nombre de la computadora. El uso del archivo HOSTS permitirá que Windows resuelva eso a una dirección IP.
 
-**Note:** Remember, there are two things going on here: Windows needs to be able to resolve the name to an IP address, which is what the HOSTS file accomplishes, in order to make a physical connection. But WinRM needs mutual authentication, which means whatever we typed into the -ComputerName parameter needs to match what's in the SSL certificate. That's why we couldn't just provide an IP address to the command - it would have worked for the connection, but not the authentication.
+**Nota**: Recuerde, hay dos cosas que suceden aquí: Windows debe poder resolver el nombre a una dirección IP, que es lo que hace el archivo HOSTS, con el fin de hacer una conexión física. Pero WinRM necesita autenticación mutua, lo que significa que cualquier cosa que escribimos en el parámetro -ComputerName debe coincidir con lo que está en el certificado SSL. Es por eso que no podemos simplemente proporcionar una dirección IP al comando - habría funcionado para la conexión, pero no la autenticación.
 
 ![image023.png](images/image023.png)
 
-Figure 2.16: Testing the HTTPS listener
+Figura 2.16: Prueba del Listener de HTTPS
 
-We started with this:
+Comenzamos con esto:
 
 ```
 Enter-PSSession -computerName DCA
 ```
 
-It didn't work - which I expected. Then we tried this:
+No funcionó, como se esperaba. Entonces intentamos esto:
 
 ```
 Enter-PSSession -computerName DCA -credential COMPANY\Administrator
 ```
 
-We provided a valid password for the Administrator account, but as expected the command didn't work. Finally:
+Proporcionamos una contraseña válida para la cuenta de administrador, pero como se esperaba, el comando no funcionó. Finalmente:
 
 ```
 Enter-PSSession -computerName DCA -credential COMPANY\Administrator -UseSSL
 ```
 
-Again providing a valid password, we were rewarded with the remote prompt we expected. It worked! This fulfills the two conditions we specified earlier: We're using an HTTPS-secured connection _and_ providing a credential. Both conditions are required because the computer isn't in my domain \(since in this case the source computer isn't even in a domain\). As a refresher, figure 2.17 shows, in green, the connection we created and used.
+Nuevamente proporcionando una contraseña válida, se mostró el aviso remoto que esperábamos. ¡Funcionó! Esto cumple las dos condiciones que especificamos anteriormente: Estamos utilizando una conexión HTTPS y proporcionamos una credencial. Ambas condiciones son necesarias porque el equipo no está en mi dominio (ya que en este caso el equipo de origen no está ni siquiera en un dominio). Solo para recordar, la figura 2.17 muestra, en verde, la conexión que creamos y usamos.
 
 ![image024.png](images/image024.png)
 
-Figure 2.17: The connection used for the HTTPS listener test
+Figura 2.17: La conexión utilizada para la prueba de escucha de HTTPS
 
-#### Modifications
+#### Modificadores
 
-There are two modifications you can make to a connection, whether using Invoke-Command, Enter-PSSession, or some other Remoting command, which relate to HTTPS listeners. These are created as part of a session option object.
+Hay dos modificadores que puede utilizar en una conexión, ya sea con Invoke-Command, Enter-PSSession o algún otro comando Remoting, que se relacionan con los oyentes \(listeners\) HTTPS. Éstos se crean como parte de un objeto de opción de sesión.
 
-* -SkipCACheck causes WinRM to not worry about whether the SSL certificate was issued by a trusted CA or not. However, untrusted CAs may in fact be untrustworthy! A poor CA might issue a certificate to a bogus computer, leading you to believe you're connecting to the right machine when in fact you're connecting to an imposter. This is risky, so use it with caution.
-* -SkipCNCheck causes WinRM to not worry about whether the SSL certificate on the remote machine was actually issued for that machine or not. Again, this is a great way to find yourself connected to an imposter. Half the point of SSL is mutual authentication, and this parameter disables that half.
+* -SkipCACheck hace que WinRM no se preocupe si el certificado SSL fue emitido por una entidad de confianza o no. Sin embargo, utilizar CAs no confiables en realidad puede ser poco fiable. Una CA “pobre” puede emitir un certificado para una computadora falsa, lo que le lleva a creer que se está conectando a la máquina correcta cuando de hecho se está conectando a una maquina impostora. Esto es riesgoso, así que úselo con precaución.
+* -SkipCNCheck hace que WinRM no se preocupe si el certificado SSL en la máquina remota se emitió realmente para esa máquina o no. Una vez más, esta es una gran manera de encontrarse conectado a un impostor. La mitad del punto de SSL es la autenticación mutua, y este parámetro desactiva esa mitad.
 
-Using either or both of these options will still enable SSL encryption on the connection - but you'll have defeated the other essential purpose of SSL, which is mutual authentication by means of a trusted intermediate authority.
+El uso de una o ambas de estas opciones seguirán activando el cifrado SSL en la conexión, pero habrá aniquilado el otro propósito esencial de SSL, que es la autenticación mutua por medio de una autoridad intermedia de confianza.
 
-To create and use a session object that includes both of these parameters:
+Para crear y utilizar un objeto de sesión que incluye ambos parámetros:
 
 ```
 $option = New-PSSessionOption -SkipCACheck -SkipCNCheck
@@ -226,7 +226,7 @@ Enter-PSSession -computerName DCA -sessionOption $option
         -credential COMPANY\Administrator -useSSL
 ```
 
-**Caution:** Yes, this is an easy way to make annoying error messages go away. But those errors are trying to warn you of a potential problem and protect you from potential security risks that are very real, and which are very much in use by modern attackers.
+**Precaución**: Sí, esta es una manera fácil de hacer que los mensajes de error molestos desaparezcan. Pero esos errores están intentando advertirle de un problema potencial y le defienden de riesgos potenciales de la seguridad que son muy reales, y que están muy en uso por los atacantes modernos.
 
 ## Certificate Authentication
 
