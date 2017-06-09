@@ -32,53 +32,53 @@ El primer paso es identificar el nombre del host que la gente utilizará para ac
 
 También necesita asegurarse de conocer el nombre completo usado para conectar con una computadora. Si la gente tiene que escribir "dc01.ad2008r2.loc", entonces eso es lo que debe aparecer en el certificado. Si simplemente necesita digitar "dca", y saber que un DNS puede resolver eso a una dirección IP, entonces "dca" es lo que debe llevar el certificado. Estamos creando un certificado que solo dice "dca" y debemos asegurarnos que nuestros equipos puedan resolver eso a una dirección IP.
 
-#### Creating a Certificate Request
+#### Creación de una solicitud de certificado
 
-Unlike IIS, PowerShell doesn't offer a friendly, graphical way of creating a Certificate Request \(or, in fact, any way at all to do so.\) So, go to [http://DigiCert.com/util](http://DigiCert.com/util) and download their free certificate utility. Figure 2.1 shows the utility. Note the warning message.
+A diferencia de IIS, PowerShell no ofrece una forma amigable y gráfica de crear una Solicitud de Certificado (de hecho no ofrece ninguna). Entonces, vaya a [http://DigiCert.com/util](http://DigiCert.com/util) y descargue su versión gratuita del “Utilitario para certificados”. La Figura 2.1 muestra el utilitario. Tenga en cuenta el mensaje de advertencia.
 
 ![image008.png](images/image008.png)
 
-Figure 2.1: Launching DigiCertUtil.exe
+Figura 2.1: Ejecutando DigiCertUtil.exe
 
-You only need to worry about this warning if you plan to acquire your certificate from the DigiCert CA; click the Repair button to install their intermediate certificates on your computer, enabling their certificate to be trusted and used. Figure 2.2 shows the result of doing so. Again, if you plan to take the eventual Certificate Request \(CSR\) to a different CA, don't worry about the Repair button or the warning message.
+Sólo tiene que preocuparse por la advertencia si planea adquirir su certificado de la CA de DigiCert. Haga clic en el botón Repair para instalar los certificados intermedios en su computadora, permitiendo que su certificado sea confiable y se pueda utilizar. La figura 2.2 muestra el resultado de hacerlo. Una vez más, si planea llevar la Solicitud de Certificado \(CSR\) eventual a una CA diferente, no se preocupe por el botón Repair o por el mensaje de advertencia
 
-Note You can also open a blank MMC console and add Windows' "Certificate" snap-in. Focus it on the computer account for the local computer \(you'll be prompted\). Then, right-click on the "Personal" folder and select All Tasks to find the option to create a new certificate request.  
+**Nota** También puede abrir una consola MMC en blanco y agregar el complemento "Certificados" de Windows. Cuando se le solicite, agregue la “cuenta de equipo” para el equipo local. A continuación, haga clic con el botón derecho en la carpeta "Personal" y seleccione Todas las tareas para encontrar la opción para crear una nueva solicitud de certificado.  
 :  
 ![image009.png](images/image009.png)
 
-Figure 2.2: After adding the DigiCert intermediate certificates
+Figura 2.2: Después de agregar los certificados intermedios de DigiCert
 
-Click "Create CSR." As shown in figure 2.3, fill in the information about your organization. This needs to be exact: The "Common Name" is exactly what people will type to access the computer on which this SSL certificate will be installed. That might be "dca," in our case, or "dc01.ad20082.loc" if a fully qualified name is needed, and so on. Your company name also needs to be accurate: Most CAs will verify this information.
+Haga clic en " Create CSR". Como se muestra en la figura 2.3, complete la información sobre su organización. Esto tiene que ser exacto: El "nombre común" es exactamente lo que la gente escribirá para acceder al equipo en el que se instalará este certificado SSL. Podría ser simplemente "dca", en nuestro caso, o "dc01.ad20082.loc" si se necesita un nombre completo, y así sucesivamente. El nombre de su empresa también debe ser preciso: la mayoría de las CA verificarán esta información.
 
 ![image010.png](images/image010.png)
 
-Figure 2.3: Filling in the CSR
+Figura 2.3: Diligenciar el CSR
 
-We usually save the CSR in a text file, as shown in figure 2.4. You can also just copy it to the Clipboard in many cases. When you head to your CA, make sure you're requesting an SSL \("Web Server," in some cases\) certificate. An e-mail certificate or other type won't work.
+Por lo general, se guarda la CSR en un archivo de texto, como se muestra en la figura 2.4. También puede copiarlo en el Portapapeles. Cuando vaya a su CA, asegúrese de que está solicitando un certificado SSL \("Servidor Web", en algunos casos\). Un certificado de correo electrónico u otro tipo no funcionará.
 
 ![image011.png](images/image011.png)
 
-Figure 2.4: Saving the CSR into a text file
+Figura 2.4: Guardar el CSR en un archivo de texto
 
-Next, take that CSR to your CA and order your certificate. This will look something like figure 2.5 if you're using DigiCert; it'll obviously be different with another CA, with an internal PKI, and so forth. Note that with most commercial CAs you'll have to select the type of Web server you're using; choose "Other," if that's an option, or "IIS" if not.
+A continuación, lleve esa CSR a su CA y solicite su certificado. Verá algo como la figura 2.5 si está utilizando DigiCert. Obviamente será diferente con otra CA, con una PKI interna. Tenga en cuenta que con la mayoría de las CA comerciales tendrá que seleccionar el tipo de servidor Web que está utilizando \(IIS o el que corresponda\).
 
-**Note:** Using the MakeCert.exe utility from the Windows SDK will generate a local certificate that only your machine will trust. This isn't useful. Folks tell you to do this in various blog posts because it's quick and easy; they also tell you to disable various security checks so that the inherently-useless certificate will work. It's a waste of time. You're getting encryption, but you've no assurance that the remote machine is the one you intended to connect to in the first place. If someone's hijacking your information, who cares if it was encrypted before you sent it to them?
+**Nota**: El uso del utilitario MakeCert.exe en el SDK de Windows generará un certificado local en el que solo su máquina confiará. Esto no es útil. Mucha gente le dirá que haga esto en varias publicaciones o blogs, porque es rápido y fácil. También le dirán que deshabilite algunas  comprobaciones de seguridad para que el certificado inherentemente inútil funcione. Es una pérdida de tiempo. Usted estará utilizando cifrado, pero no tendrá la seguridad de que la máquina remota es a la que tenía la intención de conectarse. Si alguien está secuestrando su información, ¿a quién le importa si se cifró antes de enviarla a ellos?
 
 ![image012.png](images/image012.png)
 
-Figure 2.5: Uploading the CSR to a CA
+Figura 2.5: Carga del CSR en una CA
 
-**Caution:** Note the warning message in figure 2.5 that my CSR needs to be generated with a 2048-bit key. DigiCert's utility offered me that, or 1024-bit. Many CAs will have a high-bit requirement; make sure your CSR complies with what they need. Also notice that this is a Web server certificate we're applying for; as we wrote earlier, it's the only kind of certificate that will work.
+**Precaución**: Observe el mensaje de advertencia en la figura 2.5. Mi CSR necesita ser generado con una clave de 2048 bits. La utilidad de DigiCert ofrece eso o 1024 bits. Muchas CA tendrán un requisito de bit-alto. Asegúrese de que su RSE cumple con lo que necesita. Observe también que se trata de un certificado de servidor Web lo que estamos solicitando. Como escribimos anteriormente, es el único tipo de certificado que funcionará.
 
-Eventually, the CA will issue your certificate. Figure 2.6 shows where we went to download it. We chose to download all certificates; we wanted to ensure we had a copy of the CA's root certificate, in case we needed to configure another machine to trust that root.
+Eventualmente, la CA emitirá su certificado. La Figura 2.6 muestra el sitio a dónde fuimos para descargarlo. Elegimos descargar todos los certificados. Queríamos asegurarnos de tener una copia del certificado raíz de la CA, en caso de que necesitáramos configurar otra máquina para confiar en esa raíz.
 
-**Tip:** The trick with digital certificates is that the machine using them, and any machines they will be presented to, need to trust the CA that issued the certificate. That's why you download the CA root certificate: so you can install it on the machines that need to trust the CA. In a large environment, this can be done via Group Policy, if desired.
+**Sugerencia**: El truco con los certificados digitales es que la máquina que los utiliza y las máquinas a las que se presentarán, deben confiar en la entidad emisora de certificados que emitió el mismo. Es por eso que descarga el certificado raíz de la CA, para que pueda instalarlo en las máquinas que necesitan confiar en dicha CA. En un entorno grande, esto se puede hacer a través de una directiva de grupo, si se quisiera.
 
 ![image013.png](images/image013.png)
 
-Figure 2.6: Downloading the issued certificate
+Figura 2.6: Descarga del certificado emitido
 
-Make sure you back up the certificate files! Even though most CAs will re-issue them as needed, it's far easier to have a handy backup, even on a USB flash drive.
+Asegúrese de hacer una copia de seguridad de los archivos de certificados. Aunque la mayoría de las CA las publicarían de nuevo de ser necesario, es mucho más fácil tener una copia de seguridad.
 
 #### Installing the Certificate
 
