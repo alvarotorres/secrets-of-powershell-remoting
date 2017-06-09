@@ -228,21 +228,21 @@ Enter-PSSession -computerName DCA -sessionOption $option
 
 **Precaución**: Sí, esta es una manera fácil de hacer que los mensajes de error molestos desaparezcan. Pero esos errores están intentando advertirle de un problema potencial y le defienden de riesgos potenciales de la seguridad que son muy reales, y que están muy en uso por los atacantes modernos.
 
-## Certificate Authentication
+## Autenticación de certificados
 
-Once you have an HTTPS listener set up, you have the option of authenticating with Certificates. This allows you to connect to remote computers, even those in an untrusted domain or workgroup, without requiring either user input or a saved password. This may come in handy when scheduling a task to run a PowerShell script, for example.
+Una vez que haya establecido un oyente (listener) de HTTPS, tendrá la opción de autenticarse con Certificados. Esto le permite conectarse a equipos remotos, incluso aquellos en un dominio o grupo de trabajo no confiable, sin requerir el ingreso de usuario-clave, lo que puede ser útil cuando se programa una tarea para ejecutar un script de PowerShell, por ejemplo.
 
-In Certificate Authentication, the client holds a certificate with a private key, and the remote computer maps that certificate's public key to a local Windows account. WinRM requires a certificate which has "Client Authentication \(1.3.6.1.5.5.7.3.2\)" listed in the Enhanced Key Usage attribute, and which has a User Principal Name listed in the Subject Alternative Name attribute. If you're using a Microsoft Enterprise Certification Authority, the "User" certificate template meets these requirements.
+En la autenticación de certificados, el cliente tiene un certificado con una clave privada y el equipo remoto asigna la clave pública de ese certificado a una cuenta de Windows local. WinRM requiere un certificado que tenga "Client Authentication \(1.3.6.1.5.5.7.3.2\)" que aparece en el atributo Enhanced Key Usage, y que tiene un nombre principal de usuario listado en el atributo Subject Alternative Name. Si utiliza la  Autoridad de Certificación de Microsoft Enterprise, la plantilla de certificado "Usuario" cumple estos requisitos.
 
-#### Obtaining a certificate for client authentication
+#### Obtención de un certificado de autenticación de cliente
 
-These instructions assume that you have a Microsoft Enterprise CA. If you are using a different method of certificate enrollment, follow the instructions provided by your vendor or CA administrator.
+Estas instrucciones asumen que tiene una CA de Microsoft Enterprise. Si está utilizando un método diferente de inscripción de certificados, siga las instrucciones proporcionadas por su proveedor o el administrador de CA.
 
-On your client computer, perform the following steps:
+En el equipo cliente, realice los siguientes pasos:
 
-* Run certmgr.msc to open the "Certificates - Current User" console.
-* Right click on the "Personal" node, and select All Tasks -&gt; Request New Certificate& 
-* In the Certificate Enrollment dialog, click Next. Highlight "Active Directory Enrollment Policy", and click Next again. Select the User template, and click Enroll.
+* Ejecute certmgr.msc para abrir la consola " Certificates - Current User".
+* Haga clic derecho en el nodo "Personal" y seleccione All Tasks -> Request New Certificate
+* En el cuadro de diálogo Certificate Enrollment, haga clic en Next. Seleccione "Active Directory Enrollment Policy " y haga clic en Next de nuevo. Seleccione la plantilla User y haga clic en Enroll
 
 ![image025.png](images/image025.png)
 
