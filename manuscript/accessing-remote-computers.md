@@ -136,38 +136,38 @@ Finalmente, como se muestra en la figura 2.14, seleccione la huella digital del 
 
 Figura 2.14: Validación de la huella digital del certificado
 
-#### Setting up the HTTPS Listener
+#### Configuración del listener de HTTPS
 
-These next steps will be accomplished in the Cmd.exe shell, not in PowerShell. The command-line utility's syntax requires significant tweaking and escaping in PowerShell, and it's a lot easier to type and understand in the older Cmd.exe shell \(which is where the utility has to run anyway; running it in PowerShell would just launch Cmd.exe behind the scenes\).
+Los siguientes pasos se llevarán a cabo en el shell Cmd.exe, no en PowerShell. La sintaxis de la utilidad de línea de comandos requiere un ajuste significativo y escapar algunas cosas en PowerShell, así que es mucho más sencillo de escribir y entender directamente en el shell de Cmd.exe (que es donde la utilidad tiene que ejecutarse de todos modos). Ejecutarlo en PowerShell sólo lanzaría Cmd. Exe tras bambalinas.
 
-As shown in figure 2.15, run the following command:
+Como se muestra en la figura 2.15, ejecute el siguiente comando:
 
 ![image022.png](images/image022.png)
 
-Figure 2.15: Setting up the HTTPS WinRM listener
+Figura 2.15: Configuración del listener de HTTPS WinRM
 
 ```
 Winrm create winrm/config/Listener?Address=\*+Transport=HTTPS @{Hostname="xxx";CertificateThumbprint="yyy"}
 ```
 
-There are two or three pieces of information you'll need to place into this command:
+Hay dos o tres piezas de información que necesitará colocar en este comando:
 
-* In place of \*, you can put an individual IP address. Using \* will have the listener listen to all local IP addresses.
-* In place of xxx, put the exact computer name that the certificate was issued to. If that includes a domain name \(such as dc01.ad2008r2.loc\), put that. Whatever's in the certificate must go here, or you'll get a CN mismatch error. Our certificate was issued to "dca," so I put "dca."
-* In place of yyy, put the exact certificate thumbprint that you copied earlier. It's okay if this contains spaces.
+* En lugar de \*, puede poner una dirección IP individual. El uso de \* hará que el oyente \(listener\) escuche todas las direcciones IP locales.
+* En lugar de xxx, coloque el nombre de equipo exacto para el que se emitió el certificado. Si eso incluye un nombre de dominio \(como dc01.ad2008r2.loc\), póngalo. Lo que está en el certificado debe ir aquí, de lo contrario tendrá un error de coincidencia CN. Como nuestro certificado fue emitido a "dca", puse "dca"
+* En lugar de yyy, coloque la huella digital de certificado exacta que copió anteriormente. Está bien si contiene espacios.
 
-That's all you should need to do in order to get the listener working.
+Eso es todo lo que debe hacer para que el oyente (listener) funcione.
 
-**Note:** We had the Windows Firewall disabled on this server, so we didn't need to create an exception. The exception isn't created automatically, so if you have any firewall enabled on your computer, you'll need to manually create the exception for port 5986.
+**Nota**: Teníamos el Firewall de Windows deshabilitado en este servidor, por lo que no necesitamos crear una excepción. La excepción no se crea automáticamente; por lo tanto, si tiene un firewall habilitado en su computadora, deberá crear manualmente la excepción para el puerto 5986.
 
-You can also run an equivalent PowerShell command to accomplish this task:
+También puede ejecutar un comando equivalente de PowerShell para realizar esta tarea:
 
 ```
 New-WSManInstance winrm/config/Listener -SelectorSet @{Address='\*';
 Transport='HTTPS'} -ValueSet @{HostName='xxx';CertificateThumbprint='yyy'}
 ```
 
-In that example, "xxx" and "yyy" get replaced just as they did in the previous example.
+En ese ejemplo, "xxx" y "yyy" se reemplazan como lo hicieron en el ejemplo anterior.
 
 #### Testing the HTTPS Listener
 
