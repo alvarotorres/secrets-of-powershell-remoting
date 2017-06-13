@@ -376,33 +376,33 @@ Figura 2.30: Conexión a la computadora remota
 
 Administrar la lista de TrustedHosts es probablemente la forma más fácil de conectarse a un equipo que no puede ofrecer autenticación mutua, siempre y cuando esté absolutamente seguro de que la suplantación no es una posibilidad. En una intranet, por ejemplo, donde ya tiene buenas prácticas de seguridad, la suplantación puede ser una posibilidad remota y puede agregar un rango de direcciones IP o un rango de nombres de host utilizando comodines.
 
-## Connecting Across Domains
+## Conexión a través de dominios
 
-Figure 2.31 illustrates the next connection we'll try to make, which is between two computers in different, trusted and trusting, forests.
+La Figura 2.31 ilustra la siguiente conexión que trataremos de hacer, que se encuentra entre dos equipos en dominios diferentes de confianza.
 
 ![image038.png](images/image038.png)
 
-Figure 2.31: Connection for the cross-domain test
+Figura 2.31: Conexión de prueba entre dominios
 
-Our first test is in figure 2.32. Notice that we're creating a reusable credential in the variable $cred, so that we don't keep having to re-type the password as we try this. However, the results of the Remoting test still aren't successful.
+Nuestra primera prueba está en la figura 2.32. Tenga en cuenta que estamos creando una credencial reutilizable en la variable $cred, para que no tengamos que volver a teclear la contraseña mientras lo intentamos. Sin embargo, los resultados de la prueba de Remoting todavía no tienen éxito.
 
 ![image039.png](images/image039.png)
 
-Figure 2.32: Attempting to connect to the remote computer
+Figura 2.32: Intentar conectarse al equipo remoto
 
-The problem? We're using a CNAME alias \(MEMBER1\), not the computer's real host name \(C2108222963\). While WinRM can use a CNAME to resolve a name to an IP address for the physical connection, it can't use the CNAME alias to look the computer up in AD, because AD doesn't use the CNAME record \(even in an AD-integrated DNS zone\). As shown in figure 2.33, the solution is to use the computer's real host name.
+¿El problema? Estamos usando un alias CNAME \(MEMBER1\), no el nombre de host real de la computadora \(C2108222963\). Aunque WinRM puede utilizar un CNAME para resolver un nombre a una dirección IP para la conexión física, no puede utilizar el alias CNAME para buscar el equipo en AD, ya que AD no utiliza el registro CNAME \(incluso en una Zona AD-DNS integrada\). Como se muestra en la figura 2.33, la solución es usar el nombre de host real de la computadora.
 
 ![image040.png](images/image040.png)
 
-Figure 2.33: Successfully connecting across domains
+Figura 2.33: Conectar correctamente a través de dominios
 
-What if you _need_ to use an IP address or CNAME alias to connect? Then you'll have to fall back to the TrustedHosts list or an HTTPS listener, exactly as if you were connecting to a non-domain computer. Essentially, if you can't use the computer's real host name, as listed in AD, then you can't rely on the domain to shortcut the whole authentication process.
+¿Qué pasa si _necesita_ usar una dirección IP o alias CNAME para conectarse? Tendrá que volver a la lista de TrustedHosts o a un detector de HTTPS, exactamente como si se estuviera conectando a un equipo que no pertenece al dominio. Esencialmente, si no puede utilizar el nombre de host real de la computadora, tal como aparece en AD, entonces no puede confiar en el dominio para acelerar el proceso de autenticación.
 
-## Administrators from Other Domains
+## Administradores de otros dominios
 
-There's a quirk in Windows that tends to strip the Administrator account token for administrator accounts coming in from other domains, meaning they end up running under standard user privileges - which often isn't sufficient. In the target domain, you need to change that behavior.
+Hay una peculiaridad en Windows que tiende a obviar el token de la cuenta de administrador para las cuentas de administrador procedentes de otros dominios, lo que significa que terminan ejecutándose bajo privilegios de usuario estándar, lo que a menudo no es suficiente. En el dominio de destino, se puede cambiar ese comportamiento.
 
-To do so, run this on the target computer \(type this all in one line and then hit Enter\):
+Para ello, ejecute esto en el equipo de destino \(escriba todo esto en una línea y pulse Enter\):
 
 ```
 New-ItemProperty -Name LocalAccountTokenFilterPolicy
@@ -410,43 +410,44 @@ New-ItemProperty -Name LocalAccountTokenFilterPolicy
 Policies\System -PropertyType Dword -Value 1
 ```
 
-That should fix the problem. Note that this does disable User Account Control \(UAC\) on the machine where you ran it, so make sure that's okay with you before doing so.
+Eso debería solucionar el problema. Tenga en cuenta que esto desactiva el Control de cuentas de usuario \(UAC\) en la máquina donde lo ejecutó, así que asegúrese de lo que está haciendo antes de hacerlo.
 
-## The Second Hop
+## El segundo salto
 
-One default limitation with Remoting is often referred to as the second hop. Figure 2.25 illustrates the basic problem: You can make a Remoting connection from one host to another \(the green line\), but going from that second host to a third \(the red line\) is simply disallowed. This "second hop" doesn't work because, by default, Remoting can't delegate your credential a second time. This is even a problem if you make the first hop and subsequently try to access any network resource that requires authentication. For example, if you remote into another computer, and then ask that computer to access something on an authenticated file share, the operation fails.
+Una limitación predeterminada con Remoting es a menudo referida como el segundo salto. La Figura 2.25 ilustra el problema básico: Puede realizar una conexión Remoting de un host a otro \(la línea verde\), pero pasar de ese segundo host a un tercero \(la línea roja\) simplemente se rechaza. Este "segundo salto" no funciona porque, de forma predeterminada, Remoting no puede delegar su credencial por segunda vez. Esto es incluso un problema si realiza el primer salto y posteriormente intenta acceder a cualquier recurso de red que requiera autenticación. Por ejemplo, si accede a otro equipo y, a continuación intenta tener acceso a algún archivo compartido pero necesita autenticación, la operación falla.
 
-### The CredSSP Solution
+### La solución CredSSP
 
-The following configuration changes are needed to enable the second hop:
+Los siguientes cambios de configuración son necesarios para habilitar el segundo salto:
 
-**Note:** This only works on Windows Vista, Windows Server 2008, and later versions of Windows. It won't work on Windows XP or Windows Server 2003 or earlier versions.
+**Nota:** Esto sólo funciona en Windows Vista, Windows Server 2008 y versiones posteriores de Windows. No funcionará en Windows XP o Windows Server 2003 o versiones anteriores.
 
-* CredSSP must be enabled on your originating computer and the intermediate server you connect to. In PowerShell, on your originating computer, run:
+* CredSSP debe estar habilitado en su computadora de origen y el servidor intermedio al que se conecta. En PowerShell, en el equipo de origen, ejecute:
 
 ```
 Set-Item WSMAN:\localhost\client\auth\credssp -value $true
 ```
 
-* On your intermediate server\(s\), you make a similar change to the above, but in a different section of the configuration:
+* En su \(s\) servidor \(es\) intermedio \(s\), realiza un cambio similar al anterior, pero en una sección diferente de la configuración:
 
 ```
 Set-Item WSMAN:\localhost\service\auth\credssp -value $true
 ```
 
-* Your domain policy must permit delegation of fresh credentials. In a Group Policy object \(GPO\), this is found in Computer Configuration &gt; Policies &gt; Administrative Templates &gt; System &gt; Credential Delegation &gt; Allow Delegation of Fresh Credentials. You must provide the names of the machines to which credentials may be delegated, or specify a wildcard like "\*.ad2008r2.loc" to allow an entire domain. Be sure to allow time for the updated GPO to apply, or run Gpupdate on the originating computer \(or reboot it\).
+* Su política de dominio debe permitir la delegación de nuevas credenciales. En un objeto de directiva de grupo \(GPO\), se encuentra en Configuración del equipo> Políticas> Plantillas administrativas> Sistema> Delegación de credenciales> Permitir delegación de nuevas credenciales. Debe proporcionar los nombres de las máquinas a las que se pueden delegar las credenciales o especificar un comodín como "\*.ad2008r2.loc" para permitir un dominio completo. Asegúrese de dar tiempo para que el GPO actualizado se aplique o ejecute Gpupdate en el equipo de origen \(o reinícielo\).
 
-**Note:** Once again, the name you provide here is important. Whatever you'll actually be typing for the -computerName parameter is what must appear here. This makes it really tough to delegate credentials to, say, IP addresses, without just adding "\*" as an allowed delegate. Adding "\*," of course, means you can delegate to ANY computer, which is potentially dangerous, as it makes it easier for an attacker to impersonate a machine and get hold of your super-privileged Domain Admin account!
 
-* When running a Remoting command, you must specify the "-Authentication CredSSP" parameter. You must also use the -Credential parameter and supply a valid DOMAIN\Username \(you'll be prompted for the password\) - even if it's the same username that you used to open PowerShell in the first place.
+**Nota:** Una vez más, el nombre que usted proporciona aquí es importante. Lo que realmente va a escribir para el parámetro -ComputerName es lo que debe aparecer aquí. Esto hace que sea realmente difícil delegar credenciales a, digamos, direcciones IP, sin agregar simplemente "\*" como delegado permitido. La adición de "\*", por supuesto, significa que puede delegar en CUALQUIER computadora, lo que es potencialmente peligroso, ya que facilitaría a un atacante suplantar una máquina y apoderarse de su cuenta super-privilegiada de administrador de dominio!
 
-After setting the above, we were able to use Enter-PSSession to go from our domain controller to my member server, and then use Invoke-Command to run a command on a client computer - the connection illustrated in figure 2.34.
+* Al ejecutar un comando Remoting, debe especificar el parámetro "-Authentication CredSSP". También debe utilizar el parámetro -Credential y proporcionar un valor DOMINIO\\Usuario (se le pedirá la contraseña) - incluso si es el mismo nombre de usuario que utilizó para abrir PowerShell al inicio.
+
+Después de configurar lo anterior, pudimos utilizar Enter-PSSession para pasar de nuestro controlador de dominio a mi servidor miembro y, a continuación, utilizar Invoke-Command para ejecutar un comando en un equipo cliente: la conexión ilustrada en la figura 2.34.
 
 ![image041.png](images/image041.png)
 
-Figure 2.34: The connections for the second-hop test
+Figura 2.34: Las conexiones para la prueba del segundo salto
 
-Seem tedious and time-consuming to make all of those changes? There's a faster way. On the originating computer, run this:
+¿Le parece tedioso y tedioso hacer todos esos cambios? Hay un camino más rápido. En el equipo de origen, ejecute esto:
 
 ```
 Enable-WSManCredSSP -Role Client -Delegate name
