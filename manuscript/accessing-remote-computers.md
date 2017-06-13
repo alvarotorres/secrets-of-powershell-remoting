@@ -246,57 +246,57 @@ En el equipo cliente, realice los siguientes pasos:
 
 ![image025.png](images/image025.png)
 
-Figure 2.18: Requesting a User certificate.
+Figura 2.18: Solicitud de un certificado de usuario.
 
-After the Enrollment process is complete and you're back at the Certificates console, you should now see the new certificate in the Personal\Certificates folder:
+Una vez finalizado el proceso de inscripción (enrolamiento) y regrese de nuevo a la consola de certificados, debería ver el nuevo certificado en la carpeta Personal\Certificates:
 
 ![image026.png](images/image026.png)
 
-Figure 2.19: The user's installed Client Authentication certificate.
+Figura 2.19: El certificado de autenticación de cliente instalado del usuario.
 
-Before closing the Certificates console, right-click on the new certificate, and choose All Tasks -&gt; Export. In the screens that follow, choose "do not export the private key", and save the certificate to a file on disk. Copy the exported certificate to the remote computer, for use in the next steps.
+Antes de cerrar la consola de Certificados, haga clic con el botón derecho en el nuevo certificado y seleccione All Tasks -> Export. En las pantallas siguientes, elija " do not export the private key" y guarde el certificado en un archivo en disco. Copie el certificado exportado al equipo remoto, para utilizarlo en los pasos siguientes.
 
-#### Configuring the remote computer to allow Certificate Authentication
+#### Configuración del equipo remoto para permitir la autenticación de certificados
 
-On the remote computer, run the PowerShell console as Administrator, and enter the following command to enable Certificate authentication:
+En el equipo remoto, ejecute la consola de PowerShell como Administrador e introduzca el siguiente comando para habilitar la autenticación del certificado:
 
 ```
 Set-Item -Path WSMan:\localhost\Service\Auth\Certificate -Value $true
 ```
 
-#### Importing the client's certificate on the remote computer
+#### Importar el certificado del cliente en el equipo remoto
 
-The client's certificate must be added to the machine "Trusted People" certificate store. To do this, perform the following steps to open the "Certificates \(Local Computer\)" console:
+El certificado del cliente debe agregarse al almacén de certificados de " Trusted People" del equipo. Para ello, realice los pasos siguientes para abrir la consola "Certificados \(equipo local\)":
 
-* Run "mmc".
-* From the File menu, choose "Add/Remove Snap-in."
-* Highlight "Certificates", and click the Add button.
-* Select the "Computer Account" option, and click Next.
-* Select "Local Computer", and click Finish, then click OK.
+* Ejecutar "mmc".
+* En el menú Archivo, elija " Add/Remove Snap-in".
+* Resalte " Certificates" y haga clic en el botón Add.
+* Seleccione la opción " Computer Account" y haga clic en Next.
+* Seleccione "Local Computer", haga clic en Finish y a continuación, haga clic en OK
 
-**Note:** This is the same process you followed in the "Installing the Certificate" section under Setting up and HTTPS Listener. Refer to figures 2.7, 2.8 and 2.9 if needed.
+**Nota:** Este es el mismo proceso que siguió en la sección "Instalación del certificado" en Configuración y escucha de HTTPS. Consulte las figuras 2.7, 2.8 y 2.9 si es necesario.
 
-In the Certificates \(Local Computer\) console, right-click the "Trusted People" store, and select All Tasks -&gt; Import.
+En la consola de Certificados \(Local Computer\), haga clic con el botón secundario “Trusted People" y seleccione All Tasks -> Import.
 
 ![image027.png](images/image027.png)
 
-Figure 2.20: Starting the Certificate Import process.
+Figura 2.20: Inicio del proceso de importación de certificados.
 
-Click Next, and Browse to the location where you copied the user's certificate file.
+Haga clic en Next y busque la ubicación donde copió el archivo de certificado del usuario.
 
 ![image028.png](images/image028.png)
 
-Figure 2.21: Selecting the user's certificate.
+Figura 2.21: Selección del certificado del usuario.
 
-Ensure that the certificate is placed into the Trusted People store:
+Asegúrese de que el certificado se coloca en el almacén de “Trusted People”:
 
 ![image029.png](images/image029.png)
 
-Figure 2.22: Placing the certificate into the Trusted People store.
+Figura 2.22: Colocación del certificado en el almacén de “Trusted People”.
 
-#### Creating a Client Certificate mapping on the remote computer
+#### Creación de una asignación de certificados de cliente en el equipo remoto
 
-Open a PowerShell console as Administrator on the remote computer. For this next step, you will require the Certificate Thumbprint of the CA that issued the client's certificate. You should be able to find this by issuing one of the following two commands \(depending on whether the CA's certificate is located in the "Trusted Root Certification Authorities" or the "Intermediate Certification Authorities" store\):
+Abra una consola de PowerShell como Administrador en el equipo remoto. Para el paso siguiente, necesitará la huella digital de certificado de la CA que emitió el certificado del cliente. Debería poder encontrarlo utilizando uno de estos comandos \(dependiendo de si el certificado de la entidad emisora de certificados se encuentra en las " Trusted Root Certification Authorities " o en la "Intermediate Certification Authorities"\):
 
 ```
 Get-ChildItem -Path cert:\LocalMachine\Root  
@@ -305,23 +305,23 @@ Get-ChildItem -Path cert:\LocalMachine\CA
 
 ![image030.png](images/image030.png)
 
-Figure 2.23: Obtaining the CA certificate thumbprint.
+Figura 2.23: Obtención de la huella digital del certificado de la CA.
 
-Once you have the thumbprint, issue the following command to create the certificate mapping:
+Una vez que tenga la huella digital, emita el siguiente comando para crear la asignación de certificados:
 
 ```
 New-Item -Path WSMan:\localhost\ClientCertificate -Credential (Get-Credential) -Subject <userPrincipalName> -URI \* -Issuer <CA Thumbprint> -Force
 ```
 
-When prompted for credentials, enter the username and password of a local account with Administrator rights.
+Cuando se le pidan credenciales, ingrese el nombre de usuario y la contraseña de una cuenta local con derechos de administrador.
 
-**Note:** It is not possible to specify the credentials of a domain account for certificate mapping, even if the remote computer is a member of a domain. You must use a local account, and the account must be a member of the Administrators group.
+**Nota:** No es posible especificar las credenciales de una cuenta de dominio para la asignación de certificados, incluso si el equipo remoto es un miembro de un dominio. Debe utilizar una cuenta local y la cuenta debe ser miembro del grupo Administradores.
 
 ![image031.png](images/image031.png)
 
-Figure 2.24: Setting up the client certificate mapping.
+Figura 2.24: Configuración de la asignación de certificados de cliente.
 
-#### Connecting to the remote computer using Certificate Authentication
+#### Conexión al equipo remoto mediante la autenticación de certificados
 
 Now, you should be all set to authenticate to the remote computer using your certificate. For this step, you will need the thumbprint of the client authentication certificate. To obtain this, you can run the following command on the client computer:
 
