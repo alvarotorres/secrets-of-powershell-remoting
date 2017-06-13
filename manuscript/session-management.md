@@ -18,35 +18,35 @@ Por ejemplo, la figura 5.1 muestra una sesión que se está creando desde un cli
 
 ![image070.png](images/image070.png)
 
-Figure 5.1: Creating, using, and disconnecting a session
+Figura 5.1: Creación, uso y desconexión de una sesión
 
-In figure 5.2, we've moved to a different machine. We're logged on, and running PowerShell, as the same user that we were on the previous client computer. We retrieve the session from the remote computer, and then reconnect it. We then enter the newly reconnected session, display that background job, and receive some results from it. Finally, we exit the remote session and shut it down via Remove-PSSession.
+En la figura 5.2, nos hemos trasladado a una máquina diferente. Hemos iniciado sesión y ejecutado PowerShell, como el mismo usuario que estábamos en el equipo cliente anterior. Recuperamos la sesión desde el equipo remoto y la reconectamos. Luego entramos en la sesión conectada  nuevamente, mostramos ese trabajo en segundo plano y recibimos algunos resultados del mismo. Finalmente, salimos de la sesión remota y “apagamos la sesión” mediante Remove-PSSession.
 
 ![image071.png](images/image071.png)
 
-Figure 5.2: Reconnecting to, utilizing, and removing a session
+Figura 5.2: Reconectar, utilizar y eliminar una sesión
 
-Obviously, disconnected sessions can present something of a management concern, because you're leaving a copy of PowerShell up and running on a remote machine - and you're doing so in a way that makes it difficult for someone else to even see you've done it! That's where session options come into play.
+Obviamente, las sesiones desconectadas pueden ser un reto para los procesos de administración, porque está dejando una copia de PowerShell en funcionamiento en una máquina remota y lo está haciendo de una manera que se hace difícil para alguien “verle”. Ahí es donde entran en juego las opciones de sesión.
 
-## Session Options
+## Opciones de Sesión
 
-Whenever you run a Remoting command that creates a session - whether persistent or ad-hoc - you have the option of specifying a -SessionOption parameter, which accepts a PSSessionOption object. The default option object is used if you don't specify one, and that object can be found in the built-in $PSSessionOption variable. It's shown in figure 5.3.
+Cada vez que ejecuta un comando Remoting que crea una sesión, ya sea persistente o Ad Hoc, tiene la opción de especificar un parámetro -SessionOption que acepte un objeto PSSessionOption. El objeto de opción predeterminado se utiliza si no especifica uno, y ese objeto se puede encontrar en la variable global $PSSessionOption. Se muestra en la figura 5.3.
 
 ![image072.png](images/image072.png)
 
-Figure 5.3: The default PSSessionOption object stored in $PSSessionOption
+Figura 5.3: El objeto PSSessionOption predeterminado almacenado en $PSSessionOption
 
-As you can see, this specifies a number of defaults, including the operation timeout, idle timeout, and other options. You can change these by simply creating a new session option object and assigning it to $PSSessionOption; note that you need to do this in a profile script if you want your changes to become the new default every time you open a new copy of PowerShell. Figure 5.4 shows an example.
+Como se puede ver, especifica un número de valores predeterminados, incluyendo el tiempo de espera de la operación, el tiempo de espera inactivo y otras opciones. Puede cambiar estos valores simplemente creando un nuevo objeto de opción de sesión y asignándolo a $PSSessionOption. Tenga en cuenta que debe realizar esto en una secuencia de comandos de perfil si desea que los cambios se conviertan en el nuevo valor predeterminado cada vez que abra una nueva copia de PowerShell. La figura 5.4 muestra un ejemplo..
 
 ![image073.png](images/image073.png)
 
-Figure 5.4: Creating a new default PSSessionOption object
+Figura 5.4: Creación de un nuevo objeto PSSessionOption predeterminado
 
-Of course, a 2-second idle timeout probably isn't very practical (and in fact won't work - you must specify at least a 60-second timeout in order to use the session object at all), but you'll note that you only need to specify the option parameters that you want to change - everything else will go to the built-in defaults. You can also specify a unique session option for any given session you create. Figure 5.5 shows one way to do so.
+Por supuesto, un tiempo de inactividad de 2 segundos probablemente no es muy práctico (y de hecho no funcionará) por lo que debería especificar al menos un tiempo de espera de 60 segundos para lograr utilizar el objeto de sesión). Sin embargo, notará que sólo es necesario especificar los parámetros de opción que desea cambiar. Todo lo demás se establecerá a sus valores predeterminados. También puede especificar una opción de sesión única para cada sesión que cree. La figura 5.5 muestra una forma de hacerlo.
 
 ![image074.png](images/image074.png)
 
-Figure 5.5: Creating a new PSSessionOption object to use with a 1-to-1 connection
+Figura 5.5: Creación de un nuevo objeto PSSessionOption para usar con una conexión 1-a-1
 
-By specifying intelligent values for these various options, you can help ensure that disconnected sessions don't hang around and run forever and ever. A reasonable idle timeout, for example, ensures that the session will eventually close itself, even if an administrator disconnects from it and subsequently forgets about it. Note that, when a session closes itself, any data within that session - including background job results - will be lost. It's probably a good idea to get in the practice of having data saved into a file (by using Export-CliXML, for example), so that an idle session doesn't close itself and lose all of your work.
+Mediante la especificación de valores convenientes para estas opciones, puede ayudar a garantizar que las sesiones desconectadas no se cierren y funcionen de manera adecuada. Un tiempo de espera de inactividad razonable, por ejemplo, asegura que la sesión acabará cerrándose, incluso si un administrador se desconecta y posteriormente se olvida de ella. Tenga en cuenta que cuando se cierra una sesión, se perderán todos los datos de esa sesión, incluidos los resultados de los trabajos en segundo plano. Probablemente sea una buena idea adoptar alguna practica para guardar datos en un archivo (por ejemplo, utilizando Export-CliXML, por ejemplo), para que una sesión inactiva no se cierre y se pierda todo su trabajo.
 
