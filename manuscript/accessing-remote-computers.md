@@ -345,35 +345,36 @@ Figura 2.26: Demostración de que la conexión está sobre el puerto SSL 5986, i
 
 ## Modificación de la lista TrustedHosts
 
-As I mentioned earlier, using SSL is only one option for connecting to a computer for which mutual authentication isn't possible. The other option is to selectively disable the need for mutual authentication by providing your computer with a list of "trusted hosts." In other words, you're telling your computer, "If I try to access SERVER1 \[for example\], don't bother mutually authenticating. I know that SERVER1 can't possibly be spoofed or impersonated, so I'm taking that burden off of your shoulders."
+Como mencioné anteriormente, el uso de SSL es sólo una opción para conectarse a un equipo para el que no es posible la autenticación mutua. La otra opción es desactivar selectivamente la necesidad de autenticación mutua proporcionando a su equipo una lista de "hosts de confianza". En otras palabras, le está diciendo a su computadora, "Si intento acceder a SERVER1 \[por ejemplo\], no se molesten con la autenticación mutua. Estoy seguro que SERVER1 no puede ser falsificado o suplantado, por lo que estoy tomando esa responsabilidad."
 
-Figure 2.27 illustrates the connection we'll be attempting.
+La figura 2.27 ilustra la conexión que vamos a intentar.
 
 ![image034.png](images/image034.png)
 
-Figure 2.27: The TrustedHosts connection test
+Figura 2.27: Prueba de conexión a un TrustedHosts
 
-Beginning on CLIENTA, with a completely default Remoting configuration, we'll attempt to connect to C3925954503, which also has a completely default Remoting configuration. Figure 2.28 shows the result. Note that I'm connecting via IP address, rather than hostname; our client has no way of resolving the computer's name to an IP address, and for this test we'd rather not modify my local HOSTS file.
+A partir de un cliente, con una configuración Remoting completamente predeterminada, intentaremos conectarnos a C3925954503, que también tiene una configuración de Remoting por defecto. La figura 2.28 muestra el resultado. Tenga en cuenta que estoy conectando a través de la dirección IP, en lugar de al hostname. Nuestro cliente no tiene ninguna manera de resolver el nombre de la computadora a una dirección IP, y para esta prueba preferimos no modificar mi archivo local HOSTS.
 
 ![image035.png](images/image035.png)
 
-Figure 2.28: Attempting to connect to the remote computer
+Figura 2.28: Intentando conectarse al equipo remoto
 
-This is what we expected: The error message is clear that we can't use an IP address \(or a host name for a non-domain computer, although the error doesn't say so\) unless we either use HTTPS and a credential, or add the computer to my TrustedHosts list and use a credential. We'll choose the latter this time; figure 2.29 shows the command we need to run. If we'd wanted to connect via the computer's name \(C3925954503\) instead of its IP address, we'd have added that computer name to the TrustedHosts list \(It'd be our responsibility to ensure my computer could somehow resolve that computer name to an IP address to make the physical connection\).
+Esto es lo que esperábamos: El mensaje de error es claro. No podemos usar una dirección IP \(o un nombre de host para un equipo que no sea de dominio, aunque el error no lo diga\) a menos que utilicemos HTTPS y una credencial o que agregue la computadora a mi lista de TrustedHosts y use una credencial. Elegiremos esta última opción. La figura 2.29 muestra el comando que debemos ejecutar. Si hubiéramos querido conectarnos a través del nombre de la computadora \(C3925954503\) en lugar de su dirección IP, habríamos añadido ese nombre de equipo a la lista de TrustedHosts \(sería nuestra responsabilidad asegurar que mi computadora pudiera de alguna manera resolver ese nombre de equipo a una dirección IP para realizar la conexión física\).
+
 
 ![image036.png](images/image036.png)
 
-Figure 2.29: Adding the remote machine to our TrustedHosts list
+Figura 2.29: Agregar la máquina remota a nuestra lista TrustedHosts
 
-This is another case where many blogs will advise just putting "\*" in the TrustedHosts list. Really? There's no chance any computer, ever, anywhere, could be impersonated or spoofed? We prefer adding a limited, controlled set of host names or IP addresses. Use a comma-separated list; it's okay to use wildcards along with some other characters \(like a domain name, such as \*.COMPANY.loc\), to allow a wide, but not unlimited, range of hosts. Figure 2.30 shows the successful connection.
+Este es otro caso en el que muchos blogs aconsejarán simplemente poner "\*" en la lista de TrustedHosts. ¿De verdad? ¿No hay ninguna posibilidad de que cualquier computadora, nunca, en ningún lugar, pudiera ser suplantada o falsificada? Preferimos agregar un conjunto limitado y controlado de nombres de host o direcciones IP. Utilice una lista separada por comas. Está bien usar comodines junto con otros caracteres \(como un nombre de dominio, como * .COMPANY.loc\), para permitir un rango amplio pero no ilimitado de computadoras. La figura 2.30 muestra una conexión correcta.
 
-**Tip:** Use the -Concatenate parameter of Set-Item to add your new value to any existing ones, rather than overwriting them.
+**Sugerencia**: Utilice el parámetro -Concatenate de Set-Item para agregar su nuevo valor a los existentes, en lugar de sobrescribirlos.
 
 ![image037.png](images/image037.png)
 
-Figure 2.30: Connecting to the remote computer
+Figura 2.30: Conexión a la computadora remota
 
-Managing the TrustedHosts list is probably the easiest way to connect to a computer that can't offer mutual authentication, provided you're absolutely certain that spoofing or impersonation isn't a possibility. On an intranet, for example, where you already exercise good security practices, impersonation may be a remote chance, and you can add an IP address range or host name range using wildcards.
+Administrar la lista de TrustedHosts es probablemente la forma más fácil de conectarse a un equipo que no puede ofrecer autenticación mutua, siempre y cuando esté absolutamente seguro de que la suplantación no es una posibilidad. En una intranet, por ejemplo, donde ya tiene buenas prácticas de seguridad, la suplantación puede ser una posibilidad remota y puede agregar un rango de direcciones IP o un rango de nombres de host utilizando comodines.
 
 ## Connecting Across Domains
 
