@@ -1,20 +1,20 @@
-# Session Management
+# Gestión de sesiones
 
-When you create a Remoting connection between two machines, you're creating - in PowerShell terminology - a session. There are an incredible number of options that can be applied to these sessions, and in this portion of the guide we'll walk you through them.
+Cuando crea una conexión Remoting entre dos máquinas, está creando una sesión en la terminología de PowerShell. Hay un número increíble de opciones que se pueden aplicar a estas sesiones, y en esta parte de la guía los guiaremos a través de ellas.
 
-## Ad-Hoc vs. Persistent Sessions
+## Sesiones Ad-Hoc vs. Persistentes
 
-When you use a Remoting command - primarily Invoke-Command or Enter-PSSession - and specify a computer name by using their -ComputerName parameter, you're creating an ad-hoc session. Basically, PowerShell just brings up a session, utilizes it, and then tears it down, all automatically.
+Cuando utiliza un comando Remoting, principalmente Invoke-Command o Enter-PSSession, y especifica un nombre de equipo utilizando su parámetro -ComputerName, está creando una sesión Ad Hoc. Básicamente, PowerShell crea una sesión, la utiliza, y luego ejecuta sus comandos, todo de forma automática.
 
-Alternately, you can use New-PSSession to explicitly create a new session, which can then be utilized by passing the session to the -Session parameter of Invoke-Command, Enter-PSSession, and numerous other Remoting-aware commands. When you manually create a session, it's up to you to get rid of it when you're done with it. However, if you have a session open and close your copy of PowerShell, that session is automatically removed for you - so you're not leaving anything hanging around that needs to be cleaned up.
+De manera alternativa, puede utilizar New-PSSession para crear explícitamente una nueva sesión, que luego puede utilizarse pasándola como el parámetro -Session de Invoke-Command, Enter-PSSession y muchos otros comandos compatibles con Remoting. Cuando crea manualmente una sesión, es su responsabilidad deshacerse de ella cuando haya terminado de utilizarla. Sin embargo, si tiene una sesión abierta y cierra su instancia de PowerShell, esa sesión se eliminará automáticamente por usted, por lo que no estaría dejando nada pendiente que necesita ser limpiado.
 
-## Disconnecting and Reconnecting Sessions
+## Desconexión y Reconexión de Sesiones
 
-In PowerShell v3, you can disconnect and reconnect sessions by using Disconnect-PSSession and Connect-PSSession. These commands each accept a session object, which you'd usually create with New-PSSession.
+En PowerShell v3, puede desconectar y volver a conectar sesiones utilizando Disconnect-PSSession y Connect-PSSession. Estos comandos aceptan cada uno un objeto de sesión, que normalmente crearía con New-PSSession.
 
-A disconnected session leaves a copy of PowerShell up and running on the remote computer. This is a good way to get it to run some long-running task, disconnect, and then reconnect later to check up on it. You can even disconnect a session on one computer, move to another computer, and reconnect to that session (although you can't connect to someone else's disconnect session; you're limited to reconnecting to your own).
+Una sesión desconectada deja una copia de PowerShell en funcionamiento en el equipo remoto. Esta es una buena manera de ejecutar una tarea de larga duración, desconectarse y luego volver a conectarse más tarde para comprobar su estado. Incluso puede desconectar una sesión en una computadora, moverse a otra computadora y volver a conectarse a esa sesión \(aunque no puede conectarse a la sesión desconectada de otro usuario porque está limitado a volver a conectarse a la suya\).
 
-For example, figure 5.1 shows a session being created from a client to a server. The session is then given a task to perform as a background job, and then the session is disconnected. It's important to note that the command, and the background job, are on the server (DC01), not the client.
+Por ejemplo, la figura 5.1 muestra una sesión que se está creando desde un cliente a un servidor. A la sesión se le asigna una tarea para realizarla como un trabajo de fondo y, a continuación, se desconecta la sesión. Es importante tener en cuenta que el comando y el trabajo de fondo están en el servidor \(DC01\), no en el cliente.
 
 ![image070.png](images/image070.png)
 
