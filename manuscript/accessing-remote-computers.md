@@ -323,27 +323,27 @@ Figura 2.24: Configuración de la asignación de certificados de cliente.
 
 #### Conexión al equipo remoto mediante la autenticación de certificados
 
-Now, you should be all set to authenticate to the remote computer using your certificate. For this step, you will need the thumbprint of the client authentication certificate. To obtain this, you can run the following command on the client computer:
+Ahora, debe estar listo para autenticarse en el equipo remoto utilizando su certificado. En este paso, necesitará la huella digital del certificado de autenticación de cliente. Para obtenerlo, puede ejecutar el siguiente comando en el equipo cliente:
 
 ```
 Get-ChildItem -Path Cert:\CurrentUser\My
 ```
 
-Once you have this thumbprint, you can authenticate to the remote computer by using either the Invoke-Command or New-PSSession cmdlets with the -CertificateThumbprint parameter, as shown in figure 2.25.
+Una vez que tenga esta huella digital, puede autenticarse en el equipo remoto mediante los Cmdlets Invoke-Command o New-PSSession con el parámetro -CertificateThumbprint, como se muestra en la figura 2.25.
 
-**Note:** The Enter-PSSession cmdlet does not appear to work with the -CertificateThumbprint parameter. If you want to enter an interactive remoting session with certificate authentication, use New-PSSession first, and then Enter-PSSession.
+**Nota:** El Cmdlet Enter-PSSession no parece funcionar con el parámetro -CertificateThumbprint. Si desea introducir una sesión de acceso remoto interactiva con autenticación de certificado, utilice primero New-PSSession y, a continuación, Enter-PSSession.
 
-**Note:** The -UseSSL switch is implied when you use -CertificateThumbprint in either of these commands. Even if you don't type -UseSSL, you're still connecting to the remote computer over HTTPS \(port 5986, by default, on Windows 7 / 2008 R2 or later\). Figure 2.26 demonstrates this.
+**Nota:** El modificador -UseSSL está implícito cuando se utiliza -CertificateThumbprint en cualquiera de estos comandos. Incluso si no escribe -UseSSL, seguirá conectándose al equipo remoto a través de HTTPS (puerto 5986, de forma predeterminada, en Windows 7/2008 R2 o posterior). La Figura 2.26 muestra esto.
 
 ![image032.png](images/image032.png)
 
-Figure 2.25: Using a certificate to authenticate with PowerShell Remoting.
+Figura 2.25: Uso de un certificado para autenticarse con PowerShell Remoting.
 
 ![image033.png](images/image033.png)
 
-Figure 2.26: Demonstrating that the connection is over SSL port 5986, even without the -UseSSL switch.
+Figura 2.26: Demostración de que la conexión está sobre el puerto SSL 5986, incluso sin el modificador -UseSSL.
 
-## Modifying the TrustedHosts List
+## Modificación de la lista TrustedHosts
 
 As I mentioned earlier, using SSL is only one option for connecting to a computer for which mutual authentication isn't possible. The other option is to selectively disable the need for mutual authentication by providing your computer with a list of "trusted hosts." In other words, you're telling your computer, "If I try to access SERVER1 \[for example\], don't bother mutually authenticating. I know that SERVER1 can't possibly be spoofed or impersonated, so I'm taking that burden off of your shoulders."
 
