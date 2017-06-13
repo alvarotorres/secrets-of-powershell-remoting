@@ -453,26 +453,26 @@ Figura 2.34: Las conexiones para la prueba del segundo salto
 Enable-WSManCredSSP -Role Client -Delegate name
 ```
 
-Where "name" is the name of the computers that you plan to remote to next. This can be a wildcard, like \*, or a partial wildcard, like \*.AD2008R2.loc. Then, on the intermediate computer \(the one to which you will delegate your credentials\), run this:
+Donde "nombre" es el nombre de los equipos que planea remitir al siguiente. Esto puede ser un comodín, como \*, o un comodín parcial, como \*.AD2008R2.loc. A continuación, en el equipo intermedio \(aquél al que delegará sus credenciales\), ejecute lo siguiente:
 
 ```
 Enable-WSManCredSSP -Role Server
 ```
 
-Between them, these two commands will accomplish almost all of the configuration points we listed earlier. The only exception is that they will modify your local policy to permit fresh credential delegation, rather than modifying domain policy via a GPO. You can choose to modify the domain policy yourself, using the GPMC, to make that particular setting more universal.
+Entre ellos, estos dos comandos logran casi todos los puntos de configuración que enumeramos anteriormente. La única excepción es que modificarán su política local para permitir una nueva delegación de credenciales, en lugar de modificar la directiva de dominio a través de un GPO. Puede optar por modificar la directiva de dominio usted mismo, utilizando la GPMC, para que esa configuración particular sea más universal.
 
-### The Kerberos Solution
+### La solución Kerberos
 
-CredSSP isn't considered the safest protocol in the world \(see https://msdn.microsoft.com/en-us/library/cc226796.aspx\). Credentials _are_ transmitted, for example, and in clear text too, which is a problem. Fortunately, _within a domain, _there's another way to enable multi-hop Remoting, using the native Kerberos protocol, which does _not_ transmit credentials. Specifically, it's called Resource-Based Kerberos constraint delegation, and Microsoft PFE Ashley McGlone \(@goateePFE\) [wrote about it](https://blogs.technet.microsoft.com/ashleymcglone/2016/08/30/powershell-remoting-kerberos-double-hop-solved-securely/). 
+CredSSP no se considera el protocolo más seguro del mundo \(vea https://msdn.microsoft.com/en-us/library/cc226796.aspx\). Las credenciales se transmiten en texto claro, lo cual es un problema. Afortunadamente, dentro de un dominio, hay otra forma de habilitar el multi-salto Remoting, utilizando el protocolo nativo Kerberos, que no transmite credenciales. Específicamente, se llama delegación de restricciones Kerberos basada en recursos, Ashley McGlone \(@goateePFE\) [escribió sobre ello](https://blogs.technet.microsoft.com/ashleymcglone/2016/08/30/powershell-remoting-kerberos-double-hop-solved-securely/). 
 
-This basic technique works since Windows Server 2003, so it should cover any situations you need. The idea here is that one machine can be allowed to delegate credentials _specific services on another machine. _Windows Server 2012 simplified the design of this previously undocumented, complex technique, and so we'll focus on that. So, every machine involved needs to have Windows Server 2012 or later, including at least one Win2012 domain controller in the domain. You'll also need a late-model Windows computer with the RSAT installed \(I used Windows 10\). You'll know you've got the run version if you can run:
+Esta técnica básica funciona desde Windows Server 2003, por lo que debería cubrir cualquier situación que necesite. La idea aquí es que se puede permitir a una máquina delegar credenciales específicas para servicios en otra máquina. Windows Server 2012 simplificó el diseño de esta técnica, anteriormente indocumentada y compleja, por lo que nos centraremos en eso. Por lo tanto, cada máquina involucrada necesita tener Windows Server 2012 o posterior, incluyendo al menos un controlador de dominio Win2012 en el dominio. También necesitará un equipo Windows de última generación con el RSAT instalado \(he usado Windows 10\). Sabrá que tiene la versión de ejecución si puede ejecutar esto:
 
 ```
 Import-Module ActiveDirectory
 Get-Command -ParameterName PrincipalsAllowedToDelegateToAccount
 ```
 
-And get some results back. If you get nothing, you've got an older version of the RSAT - you need a newer one, which will likely require a newer version of Windows on your client. So, let's say we're on ClientA, we want to connect to ServerB, and have it delegate a credential across a second hop to ServerC.
+Y obtener algunos resultados de vuelta. Si no obtiene nada, tienes una versión anterior del RSAT - necesitara una más nueva, lo que probablemente requerirá una versión más reciente de Windows en su cliente. Por lo tanto, supongamos que estamos en ClientA, queremos conectarnos a ServerB y que delegue una credencial a través de un segundo salto a ServerC.
 
 ```
 $ClientA = $env:COMPUTERNAME
@@ -482,7 +482,6 @@ $ServerC = Get-ADComputer -Identity ServerC
 Set-ADComputer -Identity $ServerC -PrincipalsAllowedToDelegateToAccount $ServerB
 ```
 
-This allows ServerC to accept a delegated credential from ServerB. That ability it an attribute of ServerC, if you're paying attention, meaning the _computer at the end of the second hop_ is what you modify, so that it can receive a credential from the middleman. Additionally, if you've already attempted a second-hop before setting this up, you need to wit about 15 minutes for Active Directory's "bad computer cache" to expire and allow all this to actually work. You could also just reboot ServerB, if you're in a lab or something and that's an option.
+Esto permite que ServerC acepte una credencial delegada de ServerB. Si está prestando atención, esto significa que _el equipo al final del segundo salto_ es lo que se necesita modificar, para que pueda recibir una credencial del intermediario. Además, si ya ha intentado un segundo salto antes de configurar esto, tendrá que esperar alrededor de 15 minutos para que la "memoria caché incorrecta" de Active Directory expire y permita que todo funcione correctamente. También podría reiniciar ServerB, si está en un laboratorio o algo así.
 
-The -PrincipalsAllowedToDelegateToAccount can also be an array, as in @\($ServerB,$ServerZ,$ServerX\), etc, allowing multiple origins to delegate a credential to the machine account you're updating. And you can make this work across trust boundaries, too - see Ashley's original article for the technique.
-
+El -PrincipalsAllowedToDelegateToAccount también puede ser una matriz, como en @\($ServerB, $ServerZ, $ ServerX\), etc., permitiendo que varios orígenes deleguen una credencial en la cuenta de equipo que está actualizando. Puede hacer este trabajo a través de límites de confianza, también - vea el artículo original de Ashley para aplicar esta técnica.
