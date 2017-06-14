@@ -1,93 +1,94 @@
-# Configuring Remoting via GPO
+# Configuración de Remoting mediante GPO
 
-PowerShell's about\_remote\_troubleshooting provides a good set of steps for configuring basic Remoting functionality via Group Policy objects (GPOs). Running Enable-PSRemoting also reveals some useful details, such as the four main configuration. In this section, we'll cover these main configuration steps.
+La documentación de _About_remote_troubleshooting_ de PowerShell proporciona un conjunto de pasos para configurar la funcionalidad de Remoting básica a través de objetos de directiva de grupo (GPO). Ejecutando Enable-PSRemoting también revela algunos detalles útiles, como las cuatro principales configuraciones necesarias. En esta sección, cubriremos estos pasos de configuración principales.
 
-**Note:** None of this is necessary on Windows Server 2012 and later versions of the server OS. Remoting is enabled by default on those, and shouldn't be turned off, as many of the native management tools (including GUI consoles like Server Manager) depend upon Remoting.
+**Nota:** Nada de esto es necesario en Windows Server 2012 y versiones posteriores del sistema operativo de servidor. Remoting está habilitado de forma predeterminada y no debería encontrar problemas, ya que muchas de las herramientas de administración nativas (incluidas las consolas GUI, como el Administrador de servidores) dependen de Remoting.
 
-## GPO Caveats
+## Advertencias de GPO
 
-One thing to keep in mind is that GPOs can only create configuration changes; they can't necessarily change the active state of the computer. In other words, while a GPO can configure a service's start mode to "Automatic," it can't start the service. That'll happen automatically when the computer is restarted. It isn't so much that a restart is needed, just that the computer only starts services after booting. So in many cases, the changes you make with a GPO (with regard to Remoting) won't actually take effect until the next time the affected computers are restarted, because in most cases the computer only looks at the configuration at boot time. Just be aware of that.
+Una cosa a tener en cuenta es que a través de una GPO sólo se pueden establecer cambios de configuración. No se puede cambiar el estado del ordenador. En otras palabras, mientras una GPO puede configurar el modo de inicio de un servicio como "Automático", no puede iniciar el servicio. Por lo tanto, en muchos casos, los cambios que realice a través de GPO (con respecto a Remoting) no surtirán efecto hasta la próxima vez que se reinicien los equipos afectados, ya que en la mayoría de los casos la computadora sólo mira la configuración durante el arranque. No pierda esto de vista.
 
-Also, everything in this section assumes that PowerShell is already installed on the target computers - something that can also be accomplished with a GPO or other software deployment mechanism, but not something we're going to cover here. Note that most of this section should apply to either PowerShell v2 or v3; we're going to run through the examples using v2 on a Windows 7 client computer belonging to a Windows Server 2008 R2 domain.
+Además, todo en esta sección supone que PowerShell ya está instalado en los equipos de destino, algo que también se puede lograr con una GPO u otro mecanismo de implementación de software, por lo tanto no vamos a cubrir eso aquí. Tenga en cuenta que la mayor parte de esta sección debería aplicarse a PowerShell v2 o v3. En esto ejemplos, vamos a utilizar v2 en un equipo cliente con Windows 7 perteneciente a un dominio de Windows Server 2008 R2.
 
-**Note:** Some of the GPO settings we'll be reviewing became available in Windows 2008 and Windows 2008 R2, but you should be able to install the necessary administrative templates into any domain controller. The Windows 7 (and later versions) Remote Server Administration Toolkit (RSAT) contains the necessary templates.
+**Nota:** Algunas de las configuraciones de GPO que estaremos revisando estarán disponibles en Windows 2008 y Windows 2008 R2, por lo que debería  ser capaz de instalar las plantillas administrativas necesarias en cualquier controlador de dominio. El Kit de herramientas de administración remota (RSAT) de Windows 7 (y versiones posteriores) contiene las plantillas necesarias.
 
-We don't know for sure that the GPO configuration steps need to be accomplished in the order we present them; in most cases, we expect you'll do them all at once in a single GPO, so it won't matter. We're taking them step-by-step in this order so that we can check the individual results along the way.
+No sabemos con certeza si los pasos de configuración de GPO deben realizarse en el orden en que los presentamos. En la mayoría de los casos, esperamos que los haga todos a la vez en un solo GPO, por lo que no debería importar. Lo llevaremos paso a paso en este orden para que podamos comprobar los resultados individuales a lo largo del camino.
 
-## Allowing Automatic Configuration of WinRM Listeners
+## Permitir la configuración automática de los escuchas (Listeners) de WinRM
 
-As explained earlier in this guide, the WinRM service sets up one or more listeners to accept incoming traffic. Running Enable-PSRemoting, for example, sets up an HTTP listener, and we've covered how to set up an HTTPS listener in addition to, or instead of, that default one.
+Como se explicó anteriormente en esta guía, el servicio WinRM configura uno o más oyentes (listeners) para aceptar el tráfico entrante. Ejecutar Enable-PSRemoting, por ejemplo, configura un detector de HTTP y ya hemos cubierto cómo configurar un detector de HTTPS además de, o en lugar de, uno predeterminado.
 
-You'll find this setting under: Computer Configuration\Administrative Templates\Windows Components\Windows Remote Management (WinRM)\WinRM Service. Enable the policy, and specify the IPv4 and IPv6 filters, which determine which IP addresses listeners will be configured on. You can use the \* wildcard to designate all IP addresses, which is what we've done in Figure 7.1.
+Encontrará esta configuración en: Computer Configuration\\Administrative Templates\\Windows Components\\Windows Remote Management (WinRM)\\WinRM Service. Habilite la directiva y especifique los filtros IPv4 e IPv6, que determinan en qué rangos de direcciones IP se configurará. Puede utilizar el comodín \* para designar todas las direcciones IP, que es lo que hemos hecho en la Figura 7.1.
 
 ![image075.png](images/image075.png)
 
-Figure 7.1: Enabling automatic configuration of WinRM listeners
+Figura 7.1: Habilitación de la configuración automática de los oyentes de WinRM
 
-## Setting the WinRM Service to Start Automatically
+## Configuración del servicio WinRM para que se inicie automáticamente
 
-This service is set to start automatically on newer server operating systems (Windows Server 2003 and later), but not on clients. So this step will only be required for client computers. Again, this won't start the service, but the next time the computer restarts, the service will start automatically.
+Este servicio está configurado para iniciarse automáticamente en los sistemas operativos de servidor más recientes (Windows Server 2003 y posteriores), pero no en los clientes, así que este paso sólo será necesario para los equipos cliente. Una vez más, esto no iniciará el servicio, pero la próxima vez que se reinicie el equipo, el servicio se iniciará automáticamente.
 
-Microsoft suggests accomplishing this task by running a PowerShell command - which does not require that Remoting be enabled in order to work:
+Microsoft sugiere realizar esta tarea ejecutando un comando de PowerShell, que no requiere que se habilite Remoting para funcionar:
 
 ````
 Set-Service WinRM -computername $servers -startup Automatic
 ````
 
-You can populate $servers any way you like, so long as it contains strings that are computer names, and so long as you have Administrator credentials on those computers. For example, to grab every computer in your domain, you'd run the following (this assumes PowerShell v2 or v3, on a Windows 7 computer with the RSAT installed):
+Puede llenar $servers de la forma que desee, siempre que contenga cadenas que sean nombres de equipos y siempre y cuando tenga credenciales de administrador en esos equipos. Por ejemplo, para capturar cada equipo de su dominio, ejecutaría lo siguiente (esto supone PowerShell v2 o v3, en un equipo con Windows 7 con el RSAT instalado):
+
 ````
 Import-Module ActiveDirectory
 $servers = Get-ADComputer -filter \* | Select -expand name
 ````
-Practically speaking, you'll probably want to limit the number of computers you do at once by either specifying a -Filter other than "\*" or by specifying -SearchBase and limiting the search to a specific OU. Read the help for Get-ADComputer to learn more about those parameters.
 
-Note that Set-Service will return an error for any computers it couldn't contact, or for which the change didn't work, and then continue on with the next computer.
+Es probable que desee limitar el número de ordenadores especificando un - Filter distinto de "\*" o especificando -SearchBase y limitando la búsqueda a una UO específica. Lea la ayuda de Get-ADComputer para obtener más información sobre esos parámetros.
 
-Alternately, you could configure this with a GPO. Under Computer Configuration\Windows Settings\Security Settings\System Services, look for "Windows Remote Management." Right-click it and set a startup mode of Automatic. That's what we did in figure 7.2.
+Tenga en cuenta que Set-Service devolverá un error si no puede conectarse a una computadora o aquellas para las que el cambio no se pudo establecer y luego continuara con la siguiente computadora en la lista.
+
+También puede configurar esto con una GPO. En Computer Configuration\Windows Settings\Security Settings\System Services, busque "Windows Remote Management ". Haga clic con el botón derecho y establezca un modo de inicio automático. Eso es lo que hicimos en la figura 7.2.
 
 ![image076.png](images/image076.png)
 
-Figure 7.2: Setting the WinRM service start mode
+Figura 7.2: Configuración del modo de inicio del servicio WinRM
 
-## Creating a Windows Firewall Exception
+## Creación de una excepción de Firewall de Windows
 
-This step will be necessary on all computers where the Windows Firewall is enabled. We're assuming that you only want Remoting enabled in your Domain firewall profile, so that's all we're doing in our example. Obviously, you can manage whatever other exceptions you want in whatever profiles are appropriate for your environment.
+Este paso será necesario en todos los equipos en los que esté habilitado el Firewall de Windows. Estamos asumiendo que sólo desea que Remoting esté habilitado en su perfil de firewall de dominio, de modo que eso es todo lo que haremos en nuestro ejemplo. Por supuesto, usted puede gestionar cualquier otra excepción que desee en los perfiles que sean apropiados para su entorno.
 
-You'll find one setting under Computer Configuration\Administrative Templates\Network\Network Connections\Windows Firewall\Domain Profile. Note that the "Windows Firewall: Allow Local Port Exceptions" policy simply allows local Administrators to configure Firewall exceptions using the Control Panel; it doesn't actually create any exceptions. That may be exactly what you want in some cases.
+Encontrará una configuración Computer Configuration\Administrative Templates\Network\Network Connections\Windows Firewall\Domain Profile. Tenga en cuenta que la directiva " Windows Firewall: Allow Local Port Exceptions " simplemente permite a los administradores locales configurar las excepciones de Firewall mediante el Panel de control. En realidad no crea excepciones.
 
-Instead, we went to the "Define inbound port exceptions" policy, and Enabled it, as shown in figure 7.3.
+Entonces, ubicamos la política "Define inbound port exceptions " y lo habilitamos, como se muestra en la figura 7.3
 
 ![image077.png](images/image077.png)
 
-Figure 7.3: Enabling Firewall exceptions
+Figura 7.3: Habilitación de excepciones de Firewall
 
-We then clicked "Show," and added "5985:TCP:\*:enabled:WinRM" as a new exception, as shown in figure 7.4.
+A continuación, hicimos clic en " Show ", y agregamos " 5985:TCP:*:enabled:WinRM " como una nueva excepción, como se muestra en la figura 7.4.
 
 ![image078.png](images/image078.png)
 
-Figure 7.4: Creating the Firewall exception
+Figura 7.4: Creación de la excepción de Firewall
 
-## Give it a Try!
+## ¡Darle una oportunidad!
 
-After applying the above GPO changes, we restarted our client computer. When the WinRM service starts, it checks to see if it has any configured listeners. When it finds that it doesn't, it should try and automatically configure one - which we've now allowed it to do via GPO. The Firewall exception should allow the incoming traffic to reach the listener.
+Después de aplicar los cambios de GPO anteriores, reiniciamos nuestro equipo cliente. Cuando se inicia el servicio WinRM, este comprueba si tiene oyentes configurados. Cuando descubra que no lo hace, debería intentar configurar automáticamente uno, lo que ahora le hemos permitido hacer mediante GPO. La excepción Firewall debe permitir que el tráfico entrante llegue al oyente.
 
-As shown in figure 7.5, it seems to work. We've found the newly created listener!
+Como se muestra en la figura 7.5, parece que funciona. ¡Hemos encontrado al oyente recién creado!
 
 ![image079.png](images/image079.png)
 
-Figure 7.5: Checking the newly created WinRM listener
+Figura 7.5: Comprobación del escuchador WinRM recién creado
 
-Of course, the proof - as they say - is in the pudding. So we ran to another computer and, as shown in figure 7.6, were able to initiate an interactive Remoting session to our original client computer. We didn't configure anything except via GPO, and it's all working.
+Por supuesto, no se puede saber si algo funciona, hasta que no se pone a prueba. Así que intentamos conectar desde  otra computadora y, como se muestra en la figura 7.6, pudimos iniciar una sesión de Remoting interactiva en nuestro equipo cliente original. No hemos configurado nada excepto a través de GPO, y todo está funcionando.
 
 ![image080.png](images/image080.png)
 
-Figure 7-6: Initiating a 1-to-1 Remoting session with the GPO-configured client computer
+Figura 7-6: Iniciando una sesión de Remoting 1-a-1 con el equipo cliente configurado mediante GPO
 
-## What You Cant Do with a GPO
+## Lo que no se puede hacer con una GPO
 
-You can't use a GPO to start the WinRM service, as we've already stated. You also can't create custom listeners via GPO, nor can you create custom PowerShell endpoints (session configurations). However, once basic Remoting is enabled via GPO, you can use PowerShell's Invoke-Command cmdlet to remotely perform those other tasks. You could even use Invoke-Command to remotely disable the default HTTP listener, if that's what you wanted.
+No puede utilizar una GPO para iniciar el servicio WinRM, como ya lo hemos indicado. Tampoco se pueden crear escuchas (listeners) personalizadas a través de GPO, ni puede crear puntos finales de PowerShell personalizados (configuraciones de sesión). Sin embargo, una vez que se habilita el Remoting básico mediante GPO, puede utilizar el Cmdlet Invoke-Command de PowerShell para realizar de forma remota esas tareas. Incluso puede usar Invoke-Command para deshabilitar remotamente el oyente HTTP predeterminado, si así lo desea.
 
-Also keep in mind that PowerShell's WSMAN PSProvider can map remote computers' WinRM configuration into your local WSMAN: drive. That's why, by default, the top-level "folder" in that drive is "localhost;" so that there's a spot to add other computers, if desired. That offers another way to configure listeners and other Remoting-related settings.
+Además, tenga en cuenta que el WSMAN PSProvider de PowerShell puede asignar la configuración WinRM de los equipos remotos a la unidad WSMAN local. Es por eso que, por defecto, la "carpeta" de nivel superior en esa unidad es "localhost"; De modo que hay un lugar para agregar otros ordenadores, si lo desea. Eso ofrece otra forma de configurar oyentes (listeners) y otros ajustes relacionados con Remoting.
 
-The real key is to use GPO to get Remoting up and running in this basic form, which is what we've shown you how to do. From there, you can use Remoting itself to tweak, reconfigure, and modify the configuration.
-
+La verdadera clave es utilizar GPO para habilitar Remoting en su forma básica. A partir de ahí, puede utilizar Remoting en sí para modificar, reconfigurar y/o establecer la configuración
