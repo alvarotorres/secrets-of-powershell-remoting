@@ -1,35 +1,35 @@
-# Diagnostics and Troubleshooting
-Troubleshooting and diagnosing Remoting can be one of the most difficult tasks an administrator has to deal with. When Remoting works, it works; when it doesn't, it's often hard to tell why. Fortunately, PowerShell v3 and its accompanying implementation of Remoting have much clearer and more prescriptive error messages than prior versions did. However, even v2 included an undocumented and little-appreciated module named PSDiagnostics, which is designed specifically to facilitate Remoting troubleshooting. Essentially, the module lets you turn on detailed trace log information before you attempt to initiate a Remoting connection. You can then utilize that detailed log information to get a better idea of where Remoting is failing.
+# Diagnóstico y solución de problemas
+La solución de problemas y diagnóstico de Remoting puede ser una de las tareas más difíciles que un administrador tenga que tratar. Cuando funciona Remoting, funciona. Cuando no lo hace, a menudo es difícil saber por qué. Afortunadamente, PowerShell v3 y su implementación adjunta de Remoting tienen mensajes de errores mucho más claros y descriptivos que las anteriores versiones. Sin embargo, incluso v2 incluye un módulo indocumentado y poco valorado llamado PSDiagnostics, que está diseñado específicamente para facilitar la solución de problemas Remoting. Esencialmente, el módulo le permite activar la información detallada del registro de seguimiento antes de intentar iniciar una conexión remota. A continuación, puede utilizar esa información de registro detallada para obtener una mejor idea de dónde está fallando Remoting.
 
-## Diagnostics Examples
+## Ejemplos de diagnósticos
 
-For the following scenarios, we started by importing the PSDiagnostics module (note that this is implemented as a script module, and requires an execution policy that permits it to run, such as RemoteSigned or Unrestricted). Figure 4.1 also shows that we ran the Enable-PSWSManCombinedTrace command, which starts the extended diagnostics logging.
+Para los siguientes escenarios, comenzaremos por importar el módulo PSDiagnostics (tenga en cuenta que se implementa como un módulo de script y requiere una directiva de ejecución que le permita ejecutarse, como RemoteSigned o Unrestricted). La Figura 4.1 muestra la ejecución del comando Enable-PSWSManCombinedTrace, que inicia el registro de diagnóstico extendido.
 
 ![image051.png](images/image051.png)
 
-Figure 4.1: Loading the diagnostics module and starting a trace
+Figura 4.1: Carga del módulo de diagnóstico e inicio de un rastreo
 
-For each scenario, we then ran one or more commands that involved Remoting, as demonstrated in figure 4.2. We then disabled the trace by running Disable-PSWSManCombinedTrace, so that the log would only contain the details from that particular attempt (we cleared the log between attempts, so that each scenario provided a fresh diagnostics log).
+Para cada escenario, seguimos ejecutando uno o más comandos que utilizan Remoting, como se muestra en la figura 4.2. A continuación, desactivamos la traza ejecutando Disable-PSWSManCombinedTrace, de modo que el registro sólo contendrá los detalles de ese intento en particular (borramos el registro entre intentos, para que cada escenario proporcione un nuevo registro de diagnósticos).
 
 ![image052.png](images/image052.png)
 
-Figure 4.2: Entering a session and running a command
+Figura 4.2: Ingresando a una sesión y ejecutando un comando
 
-Finally, as shown in figure 4.3, we retrieved the messages from the log. In the scenarios that follow, we'll provide an annotated version of these. Note that we'll typically truncate much of this output so that we can focus on the most meaningful pieces. Also note that there's a bit of a difference in reading the information from the event log architecture, as we're doing in figure 4.3, and reading the .EVT trace file directly, as we'll do in some of our scenarios. The latter will provide combined information from different logs, which can sometimes be more useful.
+Finalmente, como se muestra en la figura 4.3, recuperamos los mensajes del registro. En los escenarios que siguen, proporcionaremos una versión detallada de éstos. Tenga en cuenta que típicamente truncaremos gran parte de la salida para poder centrarnos en las partes más significativas. Observe también que hay algo de diferencia al leer la información de la arquitectura del registro de eventos, como lo hacemos en la figura 4.3, y leer el archivo de seguimiento .EVT directamente, como lo haremos en algunos de nuestros escenarios. Este último proporcionará información combinada de diferentes registros, lo que a veces puede ser más útil.
 
 ![image053.png](images/image053.png)
 
-Figure 4.3: Examining the logged diagnostic information
+Figura 4.3: Examinar la información de diagnóstico registrada
 
-We're also going to be making use of the Microsoft-Windows-WinRM/analytic log, which does not normally contain human-readable information. In order to utilize the log's contents, we'll use an internal Microsoft utility (which we've been given permission to distribute; you'll find it on the Downloads page at http://ConcentratedTech.com) to translate the log's contents into something we can read.
+También vamos a hacer uso del Microsoft-Windows-WinRM/analytic log, que normalmente no contiene información fácilmente legible por humanos. Para utilizar el contenido del registro, utilizaremos un utilitario interno de Microsoft (que se nos ha dado permiso para distribuir y que encontraremos en la página de descargas en http://ConcentratedTech.com) para convertir el contenido del registro en algo que podemos leer.
 
-Trace information is stored in PowerShell's installation folder (run cd $pshome to get there, then change to the Traces folder). The filename extension is .ETL, and you can use Get-WinEvent -path filename.etl to read a particular file. The Construct-PSRemoteDataObject command, included in the ZIP file we referenced, can translate portions of the Analytic log's Message property into human-readable text. A demo script included in the ZIP file shows how to use it. As shown in figure 4.4, we dot-sourced the Construct-PSRemoteDataObject.ps1 file into our shell in order to gain access to the commands it contains.
+La información de rastreo se almacena en la carpeta de instalación de PowerShell (ejecute cd $PSHome para llegar allí y luego cambie a la carpeta Traces). La extensión del nombre de archivo es .ETL y puede usar Get-WinEvent -Path Filename.etl para leer un archivo en particular. El comando Construct-PSRemoteDataObject, incluido en el archivo ZIP al que hacemos referencia, puede traducir partes de la propiedad Message del registro analítico en texto (Analytic log's) legible para humanos. Un script de demostración incluido en el archivo ZIP evidencia cómo utilizarlo. Como se muestra en la figura 4.4, hemos utilizado “dot-sourcing” con el archivo Construct-PSRemoteDataObject.ps1 en nuestro shell para obtener acceso a los comandos que expone.
 
 ![image054.png](images/image054.png)
 
-Figure 4.4 Dot-sourcing the Construct-PSRemoteDataObject.ps1 script
+Figura 4.4 Dot-sourcing del script Construct-PSRemoteDataObject.ps1
 
-We also deleted the contents of C:\Windows\System32\WindowsPowerShell\v1.0\Traces prior to starting each of the following examples.
+También eliminamos el contenido de C:\Windows\System32\WindowsPowerShell\v1.0\Traces antes de iniciar cada uno de los ejemplos siguientes.
 
 #### A Perfect Remoting Connection
 
