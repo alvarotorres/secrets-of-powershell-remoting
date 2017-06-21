@@ -288,49 +288,49 @@ Figura 4.13: El error de tiempo de espera en el registro de diagnósticos
 
 Hemos encontrado que una técnica útil puede ser usar el antiguo cliente de Telnet de línea de comandos. Tenga en cuenta que WS-MAN es sólo HTTP, y HTTP, como muchos protocolos de Internet, simplemente envía texto de un lado a otro, más o menos lo mismo que hace Telnet. HTTP tiene un texto específico para enviar y recibir, pero la transmisión real es Telnet de la vieja escuela. Así que vamos a ejecutar algo como telnet dc01 5985 sólo para ver si podemos conectar. Una pantalla en blanco es normal: pulsa Ctrl + C para salir, y verá un error HTTP "Solicitud incorrecta". Eso está bien. Al menos confirma que el nombre del equipo, la dirección IP, el puerto y todo lo demás "de bajo nivel" está bien.
 
-#### Connection Problem: No Permissions
+#### Problema de conexión: Sin Permisos
 
-This can be a bit of a tricky problem, because you need to be an Administrator to enable a diagnostics trace. On the other hand, WinRM is usually quite clear when you can't connect because your account doesn't have permission to the endpoint: "Access Denied" is the error message, and that's pretty straightforward.
+Esto puede ser un problema complicado, ya que necesita ser un administrador para habilitar una traza de diagnóstico. Por otra parte, WinRM suele ser bastante claro cuando no se puede conectar porque su cuenta no tiene permiso para el punto final: "Acceso denegado" es el mensaje de error, y eso es bastante sencillo.
 
-But you can also log on as an Administrator (or open a shell under Administrator credentials), enable a trace, and then have the other user (or your other user account) try whatever it is they're trying. Go back in as Administrator and disable the trace, then examine the log. Figure 4.14 shows what you're looking for.
+Pero también puede iniciar sesión como administrador (o abrir un shell bajo Credenciales de administrador), habilitar una traza y, a continuación, hacer que el otro usuario (o la otra cuenta de usuario) lo intente. Volver atrás como administrador y deshabilitar la traza y a continuación examinar el registro. La Figura 4.14 muestra lo que está buscando.
 
 ![image064.png](images/image064.png)
 
-Figure 4.14: "Access Denied" in the diagnostics log
+Figura 4.14: "Acceso denegado" en el registro de diagnósticos
 
-The log data just after that will show you the user account that was used to try and create the connection (AD2008R2\SallyS, in our example, which is why the command failed - she's not an Administrator). A quick check with Get-PSSessionConfiguration on the remote machine will confirm the permissions on whatever Remoting endpoint you're attempting to connect to. Also, as shown in figure 4.15, we've found that running Set-PSSessionConfiguration can be useful. Provide the -Name of the endpoint you're checking, and add -ShowSecurityDescriptorUI. That will let you confirm the endpoint's permissions in a friendlier GUI form - and you can modify it right there if need be.
+Los datos de registro le mostrarán la cuenta de usuario que se utilizó para intentar crear la conexión (AD2008R2\SallyS, en nuestro ejemplo, por lo que el comando falló - ella no es un administrador). Una comprobación rápida con Get-PSSessionConfiguration en el equipo remoto confirmará los permisos en cualquier punto final de Remoting al que intente conectarse. Además, como se muestra en la figura 4.15, hemos descubierto que ejecutar Set-PSSessionConfiguration puede ser útil. Proporcione el -nombre del punto final que está comprobando y agregue -ShowSecurityDescriptorUI. Eso le permitirá confirmar los permisos del punto final en un formulario GUI más amigable, y puede modificarlo allí mismo si es necesario.
 
 ![image065.png](images/image065.png)
 
-Figure 4.15: Checking an endpoint's permissions using Set-PSSessionConfiguration
+Figura 4.15: Comprobación de los permisos de un punto final mediante Set-PSSessionConfiguration
 
-#### Connection Problem: Untrusted Host
+#### Problema de conexión: Host no confiable
 
-Figure 4-16 shows the connection we're trying to make: From the client in the AD2008R2 domain to a standalone computer that isn't part of a domain.
+La Figura 4-16 muestra la conexión que estamos intentando realizar: Desde el cliente en el dominio AD2008R2 a un equipo independiente que no forma parte de un dominio.
 
 ![image066.png](images/image066.png)
 
-Figure 4.16: Attempted connection for this scenario
+Figura 4.16: Tentativa de conexión para este escenario
 
-As shown in figure 4.17, the error comes quickly, even though we've provided a valid credential. The problem is that we're in a situation where WinRM can't get the mutual authentication it wants; part 2 of this guide covers solutions for fixing the problem. But what does the problem look like in the diagnostics log?
+Como se muestra en la figura 4.17, el error se produce rápidamente, aunque hemos proporcionado una credencial válida. El problema es que estamos en una situación en la que WinRM no puede obtener la autenticación mutua que requiere. La parte 2 de esta guía cubre soluciones para este problema. Pero, ¿cómo se ve el problema en el registro de diagnósticos?
 
 ![image067.png](images/image067.png)
 
-Figure 4.17: The error message gives good clues as to how to solve this problem
+Figura 4.17: El mensaje de error da buenas pistas sobre cómo resolver este problema
 
-Figure 4.18 shows that WinRM still sends its initial salvo of traffic to the server. It's when the reply comes back that the client realizes it can't authenticate this server, and the error is generated. What you see in the log is pretty much what shows up in the shell, verbatim.
+La Figura 4.18 muestra que WinRM todavía envía su salva inicial de tráfico al servidor. Es cuando la respuesta vuelve que el cliente se da cuenta que no puede autenticar este servidor, y se genera el error. Lo que ve en el registro es más o menos lo que aparece en el shell, literalmente.
 
 ![image068.png](images/image068.png)
 
-Figure 4.18: The diagnostic log content when attempting to connect to an untrusted host
+Figura 4.18: El contenido del registro de diagnóstico al intentar conectarse a un host no confiable
 
-Figure 4.19 shows a good second step to take: Run Test-WSMan. Provide the same computer name or IP address, but leave off the -Credential parameter. The cmdlet can at least tell you that WS-MAN and WinRM are up and running on the remote computer, and what version they're running. That at least narrows the problem down to one of authentication: Either your permissions (which would have resulted in an "Access Denied") or the mutual authentication component of Remoting.
+La Figura 4.19 muestra un buen segundo paso: Ejecutar Test-WSMan. Proporcione el mismo nombre de equipo o dirección IP, pero deje fuera el parámetro -Credential. El Cmdlet puede al menos indicarle que WS-MAN y WinRM están funcionando en el equipo remoto y la versión que están ejecutando. Eso, por lo menos, reduce el problema a uno de autenticación: o bien sus permisos (que habrían resultado en un "Acceso denegado") o el componente de autenticación mutua de Remoting.
 
 ![image069.png](images/image069.png)
 
-Figure 4.19: Test-WSMan is kind of like a "ping" for Remoting
+Figura 4.19: Test-WSMan es como un "ping" para Remoting
 
-**Note:** You'll see substantially the same behavior when you attempt to connect using HTTPS (the -UseSSL switch on the various Remoting commands), and the remote machine's SSL certificate name doesn't match the name you used in your command. The error message is unambiguous both on-screen and in the log, and we discuss solutions in part 2 of the guide.
+**Nota:** Verá prácticamente el mismo comportamiento cuando intenta conectarse mediante HTTPS (el conmutador -UseSSL en los distintos comandos de Remoting) y el nombre del certificado SSL de la máquina remota no coincide con el nombre que utilizó en su comando. El mensaje de error es inequívoco tanto en pantalla como en el registro, y discutiremos las soluciones en la parte 2 de la guía.
 
 ## Standard Troubleshooting Methodology
 
