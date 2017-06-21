@@ -332,19 +332,23 @@ Figura 4.19: Test-WSMan es como un "ping" para Remoting
 
 **Nota:** Verá prácticamente el mismo comportamiento cuando intenta conectarse mediante HTTPS (el conmutador -UseSSL en los distintos comandos de Remoting) y el nombre del certificado SSL de la máquina remota no coincide con el nombre que utilizó en su comando. El mensaje de error es inequívoco tanto en pantalla como en el registro, y discutiremos las soluciones en la parte 2 de la guía.
 
-## Standard Troubleshooting Methodology
+## Metodología Estándar de Solución de Problemas
 
-Troubleshooting can be difficult, especially with Remoting since there are so many layers in which something can go wrong. Following a straightforward, standardized approach can help pinpoint problems.
+Solucionar problemas puede ser difícil, especialmente con Remoting ya que hay muchas capas en las que algo puede salir mal. Seguir un enfoque sencillo y estandarizado puede ayudarle a identificar problemas.
 
-1. Test Remoting with its default configuration. If you've tinkered with that, undo your changes and start from scratch.
-2. Start by attempting to connect from the initiating machine to the target machine by using something other than Remoting, but which is still security-sensitive. For example, use Windows Explorer to open the remote machine's C$ shared folder. If that doesn't work, you have broader security issues. Make a note of whether or not you need to provide alternate credentials - if you do, Remoting will need them as well.
-3. Install a Telnet client on the initiating machine (a simple command-line client, like the Windows native one, will do). Attempt to connect to the HTTP WinRM listener by running telnet machine_name:5985. You should get a blank screen, and Ctrl+C will end the session. If this doesn't work, there's a basic connectivity problem (such as a blocked port) you need to resolve.
-4. Use Test-WSMan as described earlier, using an alternate credential if necessary. Make sure you're either using the machine's real name as it appears in Active Directory, or that you've taken one of the other approaches (TrustedHosts plus a credential, or SSL plus a credential) that we outlined in Section 2 of this guide. If that doesn't work, you have a problem in the WS-MAN configuration.
+1. Probar Remoting con su configuración predeterminada. Si ha cambiado algo, deshacer los cambios y empezar de cero.
+Comience por intentar conectarse desde la máquina iniciadora a la máquina de destino utilizando algo distinto de Remoting, pero que siga siendo sensible a la seguridad. Por ejemplo, utilice el Explorador de Windows para abrir la carpeta compartida C$ de la máquina remota. 
 
-Simply walking through these four steps, in this order, can help you pinpoint at least the general cause of most problems.
+2. Si eso no funciona, tiene problemas de seguridad más generales. Anote si necesita o no proporcionar credenciales alternativas - si lo hace, Remoting las necesitará también.
 
-## Summary
+3. Instalar un cliente Telnet en la máquina iniciadora (un simple cliente de línea de comandos, como el que viene con Windows). Intente conectarse al oyente HTTP WinRM ejecutando telnet nombre_máquina: 5985. Debería obtener una pantalla en blanco y Ctrl + C finalizará la sesión. Si esto no funciona, hay un problema básico de conectividad (como un puerto bloqueado) que necesita resolver.
 
-So why did we bother going through the logs when, in most of our examples, the logs simply echoed what was on the screen? Simple: As PowerShell becomes embedded in more and more GUI applications, you might not always have a console, with its nice error messages, to rely upon. What you can do, however, is use the console to start a trace, run whatever GUI app is failing, and then dig into the log to see if you find some of the signs we've shown you here.
+4. Utilice Test-WSMan como se describió anteriormente, utilizando una credencial alternativa si es necesario. Asegúrese de que utiliza el nombre real de la máquina tal como aparece en Active Directory o que ha tomado uno de los otros enfoques (TrustedHosts más una credencial o SSL más una credencial) que describimos en la Sección 2 de esta guía. Si eso no funciona, tiene un problema en la configuración de WS-MAN
+
+Simplemente avanzar por estos cuatro pasos, en este orden, puede ayudarle a identificar al menos la causa general de la mayoría de los problemas.
+
+## Resumen
+
+Entonces, ¿por qué nos molestábamos en pasar por los registros cuando, en la mayoría de nuestros ejemplos, los registros simplemente hacían eco de lo que estaba en la pantalla? Simple: A medida que PowerShell se inserta en más y más aplicaciones GUI, es posible que no siempre tenga una consola, con sus mensajes de errores agradables, en la que confiar. Lo que puede hacer, sin embargo, es usar la consola para iniciar un seguimiento, ejecutar cualquier aplicación GUI que este fallando y luego buscar en el registro para ver si encuentra algunos de los signos que le hemos mostrado aquí.
 
 
