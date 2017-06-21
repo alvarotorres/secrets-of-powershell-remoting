@@ -31,53 +31,53 @@ Figura 4.4 Dot-sourcing del script Construct-PSRemoteDataObject.ps1
 
 También eliminamos el contenido de C:\Windows\System32\WindowsPowerShell\v1.0\Traces antes de iniciar cada uno de los ejemplos siguientes.
 
-#### A Perfect Remoting Connection
+#### Una conexión remota perfecta
 
-For this connection, we went from the Windows 7 client computer in the AD2008R2 domain to the DC01 domain controller. On the DC, we changed to the C:\ folder, ran a directory, and then ended the session. Figure 4.5 shows the entire scenario.
+Para esta conexión, pasamos del equipo cliente de Windows 7 en el dominio AD2008R2 al controlador de dominio DC01. En la DC, cambiamos a la carpeta C:\, ejecutamos el comando dir y terminamos la sesión. La Figura 4.5 muestra todo el escenario.
 
 ![image055.png](images/image055.png)
 
-Figure 4.5: The example for this scenario
+Figura 4.5: Ejemplo completo del escenario
 
-We then read the log in chronological order. You need to be a bit careful; running Enable-PSWSManCombinedTrace and Disable-PSWSManCombined trace actually create log events themselves. We'll often run the Enable command, and then wait a few minutes to actually do anything with Remoting. That way, we can tell by the timestamp in the log when the "real" traffic began. We'll wait a few more minutes before running the Disable command, again so that we can easily tell when the "real" log traffic ended. Also note that we'll be getting information from two logs, WinRM and PowerShell, although reading the .ETL file with Get-WinEvent will grab everything in sequence.
+A continuación, leemos el registro en orden cronológico. Tiene que ser cuidadoso. Ejecutando Enable-PSWSManCombinedTrace y Disable-PSWSManCombined se crearan eventos de registro de ellos mismos. A menudo ejecutaremos el comando Enable, y luego esperaremos algunos minutos para hacer cualquier cosa con Remoting. De esa manera, podemos establecer por la marca de tiempo en el registro cuando comenzó el tráfico "real. Esperaremos unos minutos más antes de ejecutar el comando Disable, para que podamos saber fácilmente cuándo finalizó el tráfico de registro "real". También tenga en cuenta que vamos a obtener información de dos registros, WinRM y PowerShell, aunque leer el archivo .ETL con Get-WinEvent tomará todo en secuencia.
 
-**Note:** We've experienced problems using Get-WinEvent in PowerShell v3 on non-US English machines. If you run into problems, consider running the command from PowerShell v2, or use the GUI Event Viewer application to view the event log.
+**Nota:** hemos experimentado problemas al utilizar Get-WinEvent en PowerShell v3 en máquinas “non-US English”. Si tiene problemas, considere ejecutar el comando desde PowerShell v2 o utilice la aplicación GUI Event Viewer para ver el registro de eventos.
 
-The connection begins with (in this example) Enter-PSSession and name resolution, as shown in figure 4.6.
+La conexión comienza con (en este ejemplo) Enter-PSSession y la resolución de nombres, como se muestra en la figura 4.6
 
 ![image056.png](images/image056.png)
 
-Figure 4.6: Starting the Remoting connection
+Figura 4.6: Inicio de la conexión remota
 
-WinRM has to spin up a runspace (essentially, a PowerShell process) on the remote computer. That includes setting several options for locale, timing, and so on, as shown in figure 4.7.
+WinRM tiene que “iniciar” un espacio de ejecución (esencialmente, un proceso de PowerShell) en el equipo remoto. Esto incluye establecer varias opciones para la configuración regional, la temporización, etc, como se muestra en la figura 4.7.
 
 ![image057.png](images/image057.png)
 
-Figure 4.7: Starting the remote runspace
+Figura 4.7: Inicio del espacio de ejecución remota
 
-This will go on for a while. Eventually, you'll see WinRM beginning to send "chunks," which are packetized communications. These are sent via the Simple Object Access Protocol, so expect to see "SOAP" referenced a lot (WS-MAN is a Web service, remember, and SOAP is the communications language of Web services). Figure 4.8 shows a couple of these 1500-byte chunks. Notice that the actual payload is pretty much gibberish.
+Esto puede tomar un tiempo. Eventualmente, verá que WinRM comienza a enviar "trozos", que son comunicaciones empaquetadas. Estos son enviados a través del Protocolo de Acceso a Objetos Simples, por lo que esperamos ver muchas referencias "SOAP" (WS-MAN es un servicio Web, recuerde, y SOAP es el lenguaje de comunicaciones de los servicios Web). La Figura 4.8 muestra un par de estos trozos de 1500 bytes. Tenga en cuenta que la carga real es más o menos ilegible.
 
 ![image058.png](images/image058.png)
 
-Figure 4.8: Data begins to transfer over the connection
+Figura 4.8: Los datos comienzan a transferirse a través de la conexión
 
-This gibberish is what the Construct-PSRemoteDataObject command can translate. For example, those "sending" messages have an event ID of 32868; by looking for just those events we can see what's being sent, as shown in figure 4.9.
+Este texto ilegible es lo que el comando Construct-PSRemoteDataObject puede traducir. Por ejemplo, los mensajes de "envío" tienen un ID de evento de 32868. Buscando sólo esos eventos podemos ver lo que se está enviando, como se muestra en la figura 4.9.
 
 ![image059.png](images/image059.png)
 
-Figure 4.9: Translating the data that was sent
+Figura 4.9: Traducir los datos enviados
 
-In this case, the client was asking the server (which is listed as the destination) about its capabilities, and for some metadata on the Exit-PSSession command (that's the second message). This is how the client figures out what kind of server it's talking to, and other important, preliminary information. Now, the client knows what version of the serialization protocol will be used to send data back and forth, what time zone the server is in, and other details.
+En este caso, el cliente estaba preguntando al servidor (que está listado como el destino) acerca de sus capacidades y algunos metadatos en el comando Exit-PSSession (que es el segundo mensaje). Así es como el cliente calcula con qué tipo de servidor está hablando, y otra información importante  de manera preliminar. En este punto el cliente sabe qué versión del protocolo de serialización se utilizará para enviar datos de ida y vuelta, en qué zona horaria está el servidor y otros detalles.
 
-**Note:** Event ID 32868 is client-to-server traffic; ID 32867 represents server-to-client traffic. Using those two IDs along with Construct-PSRemoteDataObject can reveal the majority of the session transcript once the connection is established.
+**Nota:** Event ID 32868 es tráfico de cliente a servidor; ID 32867 representa tráfico de servidor a cliente. El uso de estos dos IDs junto con Construct-PSRemoteDataObject puede revelar la mayoría del trafico de sesión una vez que se establece la conexión.
 
-Moving on. As shown in figure 4.10, you'll then see some authentication back-and-forth, during which some errors can be expected. The system will eventually get over it and, as shown, start receiving chunks of data from the server.
+Continuando. Como se muestra en la figura 4.10, verá una autenticación de ida y vuelta, durante la cual se pueden esperar algunos errores. El sistema acabará por superarlo y, como se muestra, comenzará a recibir trozos de datos del servidor.
 
 ![image060.png](images/image060.png)
 
-Figure 4.10: Getting authentication taken care of
+Figura 4.10: Obtención de la autenticación
 
-A rather surprising amount of back-and-forth can ensue as the two computers exchange pleasantries, share information about each other and how they work, and so on. We're going to switch our event log output, now, to include event ID numbers, because those can be pretty useful when trying to grab specific pieces of data. At this point, the log will mainly consist of the client sending commands and the server sending back the results. This is more readable when you use Construct-PSRemoteDataObject, so here's the complete back-and-forth from that perspective: First up is the client's statement of its session capabilities:
+Una cantidad bastante sorprendente de datos de ida y vuelta puede ocurrir a medida que las dos computadoras intercambian y comparten información sobre el otro y cómo trabajan, y así sucesivamente. Vamos a cambiar nuestra salida del registro de eventos, ahora, para incluir números de ID de evento, porque pueden ser muy útiles al intentar obtener datos específicos. En este punto, el registro consistirá principalmente en el cliente que envía comandos y el servidor que envía los resultados. Esto es más legible cuando se utiliza Construct-PSRemoteDataObject, así que aquí están los datos “de aquí para allá”: Primero aparece la declaración del cliente y de sus capacidades de sesión:
 
 ````
 destination : Server
@@ -100,7 +100,7 @@ data    : <Obj RefId="0"><MS><Version
        BADAAAAAAAAABAEAAAAAAAAAAs=</BA></MS></Obj>
 ````
 
-Then the server's:
+Entonces el servidor:
 
 ````
 destination : Client
@@ -113,7 +113,7 @@ data    : <Obj RefId="0"><MS><Version
        N="SerializationVersion">1.1.0.1</Version></MS></Obj>
 ````
 
-Next is the server's $PSVersionTable object, which lists various versioning information:
+A continuación se muestra el objeto $PSVersionTable del servidor, que lista varias informaciones de control de versiones:
 
 ````
 destination : Client
@@ -145,7 +145,7 @@ data    : <Obj RefId="0"><MS><Obj N="ApplicationPrivateData"
        >
 ````
 
-Next the server sends information about the runspace that will be used:
+A continuación, el servidor envía información sobre el espacio de ejecución que se utilizará:
 
 ````
 destination : Client
@@ -156,7 +156,7 @@ data    : <Obj RefId="0"><MS><I32
        N="RunspaceState">2</I32></MS></Obj>
 ````
 
-The client sends information about its Exit-PSSession command:
+El cliente envía información sobre su comando Exit-PSSession:
 
 ````
 destination : Server
@@ -174,7 +174,7 @@ data    : <Obj RefId="0"><MS><Obj N="Name" RefId="1"><TN RefId="0"
        /><Nil N="ArgumentList" /></MS></Obj>
 ````
 
-A bit later we'll see the result of the CD C:\ command, which is the new PowerShell prompt reflecting the new folder location:
+Un poco más adelante veremos el resultado del comando CD C:\, que un nuevo mensaje de PowerShell que refleja la nueva ubicación de la carpeta:
 
 ````
 destination : Client
@@ -183,7 +183,7 @@ pipelineId : c913b8ae-2802-4454-9d9b-926ca6032018
 runspaceId : 4358d585-0eab-47ef-a0e6-4b98e71f34ab
 data    : <S>PS C:\&gt; </S>
 ````
-Next we'll look at the output of the Dir command. This first bit is writing the column headers for Mode, LastWriteTime, Length, Name, and so forth. This is all being sent to our client - we'll just include the first few lines, each of which comes across in its own block:
+A continuación, veremos la salida del comando Dir. El primer bit define los encabezados de columna para Mode, LastWriteTime, Length, Name y así sucesivamente. Todo esto se envía a nuestro cliente - solo incluiremos las primeras líneas, cada una de las cuales aparece en su propio bloque:
 
 ````
 destination : Client
@@ -240,7 +240,7 @@ data    : <Obj RefId="0"><MS><I64 N="ci">-100</I64><Obj N="mi"
                      </S></LST></Obj></MS></Obj>
 ````
 
-Eventually the command finishes and we get the prompt again:
+Finalmente, el comando finaliza y recibimos el “prompt” de nuevo:
 
 ````
 destination : Client
@@ -249,7 +249,7 @@ pipelineId : f5c8bc7a-ec54-4180-b2d4-86479f9ea4b9
 runspaceId : 4358d585-0eab-47ef-a0e6-4b98e71f34ab
 data    : <S>PS C:\&gt; </S>
 ````
-You'll also see periodic exchanges about the state of the pipeline - this indicates that the command is done:
+También verá intercambios periódicos sobre el estado de la tubería (pipeline) - esto indica que el comando ha finalizado
 
 ````
 destination : Client
@@ -260,9 +260,9 @@ data    : <Obj RefId="0"><MS><I32
        N="PipelineState">4</I32></MS></Obj>
 ````
 
-There's definitely a lot of data passing back and forth - but it's possible to make sense of it using these tools. Frankly, most Remoting problems take place during the connection phase, meaning once that's completed successfully you have no further problems. So in the next scenarios, we'll focus on specific connection errors.
+Definitivamente hay una gran cantidad de datos que pasan de un lado a otro, pero es posible entenderlo usando estas herramientas. Francamente, la mayoría de los problemas de Remoting se producen durante la fase de conexión, es decir, que una vez se haya conectado, es bastante probable que no tenga más problemas. Así que en los próximos escenarios, nos centraremos en errores de conexión específicos.
 
-**Note:** To clear the log and prepare for a new trace, we usually delete the .ETL files and go into Event Viewer to clear the Applications and Services Logs > Microsoft > Windows > Windows Remote Management log. If you're getting errors when running Enable-PSWSManCombinedTrace, one of those two tasks probably hasn't been completed.
+**Nota:** Para borrar el registro y prepararse para una nueva traza, usualmente eliminamos los archivos .ETL y entramos en el Visor de sucesos para borrar los registros de Applications and Services Logs > Microsoft > Windows > Windows Remote Management. Si está recibiendo errores al ejecutar Enable-PSWSManCombinedTrace, una de esas dos tareas probablemente no se ha completado.
 
 #### Connection Problem: Blocked Port
 
