@@ -109,23 +109,24 @@ Figura 3.9: Solamente ocho comandos, incluido el Get-ADUser que hemos agregado, 
 
 En realidad, es poco probable que un usuario de ventas como Sally estuviera ejecutando comandos en la consola de PowerShell. Lo más probable es que utilizara alguna aplicación basada en GUI que ejecutara los comandos "detrás de escenas". De cualquier manera, nos hemos asegurado de que ella tiene exactamente la funcionalidad que necesita para hacer su trabajo, y nada más.
 
-## Security Precautions with Custom Endpoints
+## Precauciones de seguridad con puntos finales personalizados
 
-When you create a custom session configuration file, as you've seen, you can set its language mode. The language mode determines what elements of the PowerShell scripting language are available in the endpoint - and the language mode can be a bit of a loophole. With the "Full" language mode, you get the entire scripting language, including script blocks. A script block is any executable hunk of PowerShell code contained within {curly brackets}. They're the loophole. Anytime you allow the use of script blocks, they can run any legal command - even if your endpoint used -VisibleCmdlets or -VisibleFunctions or another parameter to limit the commands in the endpoint.
+Cuando crea un archivo de configuración de sesión personalizado, tal como lo ha visto, puede configurar su modo de idioma. El modo de idioma determina qué elementos del lenguaje de secuencias de comandos de PowerShell están disponibles en el punto final y el modo de lenguaje puede ser como una laguna. Con el modo de lenguaje "Full", obtendrá todo el lenguaje de secuencias de comandos, incluidos los bloques de secuencia de comandos. Un bloque de secuencia de comandos es cualquier trozo ejecutable de código de PowerShell contenido dentro de {curly brackets}. Ellos son la escapatoria. Siempre que permita el uso de bloques de script, puede ejecutar cualquier comando legal, incluso si su punto final usó -VisibleCmdlets o -VisibleFunctions u otro parámetro para limitar los comandos en el punto final.
 
-In other words, if you register an endpoint that uses -VisibleCmdlets to only expose Get-ChildItem, but you create the endpoint's session configuration file to have the full language mode, then any script blocks inside the endpoint can use any command. Someone could run:
+En otras palabras, si registra un punto final que utiliza -VisibleCmdlets para exponer sólo Get-ChildItem, pero crea el archivo de configuración de sesión del punto final para que tenga el modo de lenguaje Full, cualquier bloque de secuencia dentro del punto final puede utilizar cualquier comando. Alguien podría ejecutar:
 
 ````
 PS C:\> & { Import-Module ActiveDirectory; Get-ADUser -filter \* | Remove-ADObject }
 ````
 
-Eek! This can be especially dangerous if you configured the endpoint to use a RunAs credential to run commands under elevated privileges. It's also somewhat easy to let this happen by mistake, because you set the language mode when you create the new session configuration file (New-PSSessionConfigurationFile), not when you register the session (Register-PSSessionConfiguration). So if you're using a session configuration file created by someone else, pop it open and confirm its language mode before you use it!
+¡Eek! Esto puede ser especialmente peligroso si ha configurado el punto final para utilizar una credencial de RunAs para ejecutar comandos bajo privilegios elevados. También es algo fácil dejar que esto suceda por error, ya que se establece el modo de idioma cuando se crea el nuevo archivo de configuración de sesión (New-PSSessionConfigurationFile), no cuando se registra la sesión (Register-PSSessionConfiguration). Por lo tanto, si está utilizando un archivo de configuración de sesión creado por otra persona, abra y confirme su modo de idioma antes de usarlo.
 
-You can avoid this problem by setting the language mode to NoLanguage, which shuts off script blocks and the rest of the scripting language. Or, go for RestrictedLanguage, which blocks script blocks while still allowing some basic operators if you want users of the endpoint to be able to do basic filtering and comparisons.
+Puede evitar este problema estableciendo el modo de idioma en NoLanguage, que deshabilita los bloques de secuencia de comandos y el resto del lenguaje de secuencias de comandos. O bien, vaya a RestrictedLanguage, que bloquea bloques de secuencia de comandos al mismo tiempo que permite el uso de algunos operadores básicos si desea que los usuarios del punto final puedan hacer filtrado y comparaciones básicas.
 
-Understand that this isn't a bug - the behavior we're describing here is by design. It can just be a problem if you don't know about it and understand what it's doing.
+Es importante distinguir que esto no es un error, pues el comportamiento que estamos describiendo aquí es por diseño. Puede ser un problema si no lo sabe o no entiende lo que está haciendo.
 
-Note: Much thanks to fellow MVP Aleksandar Nikolic for helping me understand the logic of this loophole!
+Nota: Muchas gracias al compañero MVP Aleksandar Nikolic por ayudarme a entender la lógica de esta laguna!
+
 
 
 
