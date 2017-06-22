@@ -1,51 +1,61 @@
-# Working with Endpoints (aka Session Configurations)
+# Trabajar con Endpoints (también conocido como Configuraciones de Sesión)
 
-As you learned at the beginning of this guide, Remoting is designed to work with multiple different endpoints on a computer. In PowerShell terminology, each endpoint is a session configuration, or just a configuration. Each can be configured to offer specific services and capabilities, as well as having specific restrictions and limitations.
+Como aprendió al principio de esta guía, Remoting está diseñado para trabajar con múltiples puntos finales distintos en un equipo. En la terminología de PowerShell, cada punto final es una configuración de sesión o simplemente una configuración. Cada uno puede ser configurado para ofrecer servicios y capacidades específicos, así como tener restricciones y limitaciones específicas.
 
-## Connecting to a Different Endpoint
+## Conexión a un punto final diferente
 
-When you use a command like Invoke-Command or Enter-PSSession, you normally connect to a remote computer's default endpoint. That's what we've done up to now. But you can see the other enabled endpoints by running Get-PSSessionConfiguration, as shown in figure 3.1.
+Cuando utiliza un comando como Invoke-Command o Enter-PSSession, normalmente se conecta al punto final predeterminado de un equipo remoto. Eso es lo que hemos hecho hasta ahora. Pero puede ver los otros puntos finales habilitados ejecutando Get-PSSessionConfiguration, como se muestra en la figura 3.1.
 
 ![image042.png](images/image042.png)
 
-Figure 3.1: Listing the installed endpoints
+Figura 3.1: Listando los puntos finales instalados
 
-**Note:** As we pointed out in an earlier chapter, every computer will show different defaults endpoints. Our output was from a Windows Server 2008 R2 computer, which has fewer default endpoints than, say, a Windows 2012 computer.
+**Nota:** Como señalamos en un capítulo anterior, cada computadora mostrará puntos finales diferentes por defecto. Nuestra salida era de un equipo con Windows Server 2008 R2, que tiene menos puntos finales predeterminados que, por ejemplo, un equipo con Windows 2012.
 
-Each endpoint has a name, such as "Microsoft.PowerShell" or "Microsoft.PowerShell32." To connect to a specific endpoint, add the -ConfigurationName parameter to your Remoting command, as shown in Figure 3.2.
+Cada punto final tiene un nombre, como "Microsoft.PowerShell" o "Microsoft.PowerShell32". Para conectarse a un punto final específico, agregue el parámetro -ConfigurationName al comando Remoting, como se muestra en la Figura 3.2.
 
 ![image043.png](images/image043.png)
 
-Figure 3.2: Connecting to a specific configuration (endpoint) by name
+Figura 3.2: Conexión a una configuración específica (punto final) por nombre
 
-## Creating a Custom Endpoint
+## Creación de un punto de extremo personalizado
 
-There are a number of reasons to create a custom endpoint (or configuration):
+Existen varias razones para crear un punto final personalizado (o una configuración):
 
-- You can have scripts and modules auto-load whenever someone connects.
-- You can specify a security descriptor (SDDL) that determines who is allowed to connect.
-- You can specify an alternate account that will be used to run all commands within the endpoint - as opposed to using the credentials of the connected users.
-- You can limit the commands that are available to connected users, thus restricting their capabilities.
+- Puede tener scripts y módulos de carga automática cada vez que alguien se conecta.
+- Puede especificar un descriptor de seguridad (SDDL) que determina quién tiene permiso para conectarse.
+- Puede especificar una cuenta alternativa que se utilizará para ejecutar todos los comandos dentro del punto final, en lugar de utilizar las credenciales de los usuarios conectados.
+- Puede limitar los comandos que están disponibles para los usuarios conectados, restringiendo así sus capacidades.
 
-There are two steps in setting up an endpoint: Creating a session configuration file which will define the endpoints capabilities, and then registering that file, which enables the endpoint and defines its configurations. Figure 3.3 shows the help for the New-PSSessionConfigurationFile command, which accomplishes the first of these two steps.
+Hay dos pasos para configurar un punto final: Crear un archivo de configuración de sesión que definirá las capacidades de los puntos finales y luego registrar ese archivo, que habilita el punto final y define sus configuraciones. La Figura 3.3 muestra la ayuda para el comando New-PSSessionConfigurationFile, que realiza el primero de estos dos pasos.
 
 ![image044.png](images/image044.png)
 
-Figure 3.3: The New-PSSessionConfigurationFile command
+Figura 3.3: El comando New-PSSessionConfigurationFile
 
-Here's some of what the command allows you to specify (review the help file yourself for the other parameters):
+Aquí algunos de los parámetros que le permiten especificar (revise el archivo de ayuda por los otros parámetros):
 
-- -Path: The only mandatory parameter, this is the path and filename for the configuration file you'll create. Name it whatever you like, and use a .PSSC filename extension.
-- -AliasDefinitions: This is a hash table of aliases and their definitions. For example, @{Name='d';Definition='Get-ChildItem';Options='ReadOnly'} would define the alias d. Use a comma-separated list of these hash tables to define multiple aliases.
-- -EnvironmentVariables: A single hash table of environment variables to load into the endpoint: @{'MyVar'='\\SERVER\Share';'MyOtherVar'='SomethingElse'}
-- -ExecutionPolicy: Defaults to Restricted if you don't specify something else; use Unrestricted, AllSigned, or RemoteSigned. This sets the script execution policy for the endpoint.
-- -FormatsToProcess and -TypesToProcess: Each of these is a comma-separated list of path and filenames to load. The first specifies .format.ps1xml files that contain view definitions, while the second specifies a .ps1xml file for PowerShell's Extensible Type System (ETS).
-- -FunctionDefinitions: A comma-separated list of hash tables, each of which defines a function to appear within the endpoint. For example, @{Name='MoreDir';Options='ReadOnly';Value={ Dir | more }}
-- -LanguageMode: The mode for PowerShell's script language. "FullLanguage" and "NoLanguage" are options; the latter permits only functions and cmdlets to run. There's also "RestrictedLanguage" which allows a very small subset of the scripting language to work - see the help for details.
-- -ModulesToImport: A comma-separated list of module names to load into the endpoint. You can also use hash tables to specify specific module versions; read the command's full help for details.
-- -PowerShellVersion: '2.0' or '3.0,' specifying the version of PowerShell you want the endpoint to use. 2.0 can only be specified if PowerShell v2 is independently installed on the computer hosting the endpoint (installing v3 "on top of" v2 allows v2 to continue to exist).
-- -ScriptsToProcess: A comma-separated list of path and file names of scripts to run when a user connects to the endpoint. You can use this to customize the endpoint's runspace, define functions, load modules, or do anything else a script can do. However, in order to run, the script execution policy must permit the script.
-- -SessionType: "Empty" loads nothing by default, leaving it up to you to load whatever you like via script or the parameters of this command. "Default" loads the normal PowerShell core extensions, plus whatever else you've specified via parameter. "RestrictedRemoteServer" adds a fixed list of seven commands, plus whatever you've specified; see the help for details on what's loaded.
+- -Path: El único parámetro obligatorio, es la ruta y el nombre de archivo del archivo de configuración que creará. Ingrese un nombre y utilice una extensión .PSSC para el nombre de archivo.
+
+- -AliasDefinitions: Esta es una tabla hash de alias y sus definiciones. Por ejemplo, @ {Name = 'd'; Definition = 'Get-ChildItem'; Options = 'ReadOnly'} definiría el alias d. Utilice una lista separada por comas de estas tablas hash para definir varios alias.
+
+- -EnvironmentVariables: Una tabla hash única de variables de entorno para cargar en el punto final: @{'MyVar'='\SERVER\Share';'MyOtherVar'='SomethingElse'}
+
+- -ExecutionPolicy: Por defecto es Restricted si no especifica otra cosa. Utilice Unrestricted, AllSigned o RemoteSigned. Establece la directiva de ejecución de secuencias de comandos para el punto final.
+
+- -FormatsToProcess y -TypesToProcess: Cada una de estas es una lista separada por comas de la ruta de acceso y los nombres de los archivos a cargar. El primero especifica los archivos .format.ps1xml que contienen definiciones de vista, mientras que el segundo especifica un archivo .ps1xml para el ETS (Extensible Type System) de PowerShell.
+
+- -FunctionDefinitions: Una lista separada por comas de tablas hash, cada una de las cuales define una función para aparecer dentro del punto final. Por ejemplo,  @{Name='MoreDir';Options='ReadOnly';Value={ Dir | more }}
+
+- -LanguageMode: El modo para el lenguaje de script de PowerShell. "FullLanguage" y "NoLanguage" son las opciones. Este último sólo permite ejecutar funciones y Cmdlets. También hay "RestrictedLanguage" que permite un subconjunto muy pequeño del lenguaje de scripting para trabajar - vea la ayuda para más detalles.
+
+- -ModulesToImport: Una lista de nombres de módulos separados por comas para cargar en el punto final. También puede utilizar tablas hash para especificar versiones de módulo específicas. Lea la ayuda completa del comando para obtener más detalles.
+
+- -PowerShellVersion: '2.0' o '3.0', especifica la versión de PowerShell que desea que el punto final utilice. 2.0 sólo se puede especificar si PowerShell v2 se instala independientemente en el equipo que aloja el punto final (instalando v3 "en la parte superior de" v2 permite que v2 continúe existiendo).
+
+- -ScriptsToProcess: Una lista separada por comas de nombres de rutas y archivos de secuencias de comandos que se ejecutan cuando un usuario se conecta al punto final. Puede usar esto para personalizar el espacio de ejecución del punto final, definir funciones, cargar módulos o hacer cualquier otra cosa que un script pueda hacer. Sin embargo, para ejecutar la directiva de ejecución de secuencias de comandos debe permitir la secuencia de comandos.
+
+- -SessionType: " Empty " no carga nada por defecto, dejándolo a usted libre de cargar lo que quiera a través de scripts o los parámetros de este comando. "Default" carga las extensiones principales de PowerShell normales, además de cualquier otra cosa que haya especificado a través del parámetro. "RestrictedRemoteServer" agrega una lista fija de siete comandos, además de lo que haya especificado. Consulte la ayuda para obtener detalles sobre lo que se ha cargado
 
 **Caution:** Some commands are important - like Exit-PSSession, which enables someone to cleanly exit an interactive Remoting session. RestrictedRemoteServer loads these, but Empty does not.
 
