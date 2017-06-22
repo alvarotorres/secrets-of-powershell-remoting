@@ -57,55 +57,57 @@ Aquí algunos de los parámetros que le permiten especificar (revise el archivo 
 
 - -SessionType: " Empty " no carga nada por defecto, dejándolo a usted libre de cargar lo que quiera a través de scripts o los parámetros de este comando. "Default" carga las extensiones principales de PowerShell normales, además de cualquier otra cosa que haya especificado a través del parámetro. "RestrictedRemoteServer" agrega una lista fija de siete comandos, además de lo que haya especificado. Consulte la ayuda para obtener detalles sobre lo que se ha cargado
 
-**Caution:** Some commands are important - like Exit-PSSession, which enables someone to cleanly exit an interactive Remoting session. RestrictedRemoteServer loads these, but Empty does not.
+**Precaución**: Algunos comandos son importantes, como Exit-PSSession, que permite a alguien salir de forma limpia de una sesión de Remoting interactiva. RestrictedRemoteServer carga estos, pero Empty no.
 
-- -VisibleAliases, -VisibleCmdlets, -VisibleFunctions, and -VisibleProviders: These comma-separated lists define which of the aliases, cmdlets, functions, and PSProviders you've loaded will actually be visible to the endpoint user. These enable you to load an entire module, but then only expose one or two commands, if desired.
+-VisibleAliases, -VisibleCmdlets, -VisibleFunctions y -VisibleProviders: estas listas separadas por comas definen cuáles de los alias, cmdlets, funciones y PSProviders disponibles serán visibles para el usuario del punto final. Estos le permiten cargar un módulo completo, pero sólo exponen uno o dos comandos, si lo desea.
 
-**Note:** You can't use a custom endpoint alone to control which parameters a user will have access to. If you need that level of control, one option is to dive into .NET Framework programming, which does allow you to create a more fine-grained remote configuration. That's beyond the scope of this guide. You could also create a custom endpoint that only included proxy functions, another way of "wrapping" built-in commands and adding or removing parameters - but that's also beyond the scope of this guide.
+**Nota:** No puede utilizar un punto de terminación personalizado solo para controlar los parámetros a los que un usuario tendrá acceso. Si necesita ese nivel de control, una opción es sumergirse en la programación de .NET Framework, lo que le permite crear una configuración remota más fina. Eso está más allá del alcance de esta guía. También puede crear un punto de extremo personalizado que sólo incluya funciones de proxy, otra forma de "integrar" comandos incorporados y agregar o eliminar parámetros, pero eso también está fuera del alcance de esta guía.
 
-Once you've created the configuration file, you're ready to register it. This is done with the Register-PSSessionConfiguration command, as shown in figure 3.4.
+Una vez que haya creado el archivo de configuración, estará listo para registrarlo. Esto se hace con el comando Register-PSSessionConfiguration, como se muestra en la figura 3.4.
 
 ![image045.png](images/image045.png)
 
-Figure 3.4: The Register-PSSessionConfiguration command
+Figura 3.4: El comando Register-PSSessionConfiguration
 
-As you can see, there's a lot going on with this command. Some of the more interesting parameters include:
+Como puede ver, hay mucho que hacer con este comando. Algunos de los parámetros más interesantes son:
 
-- -RunAsCredential: This lets you specify a credential that will be used to run all commands within the endpoint. Providing this credential enables users to connect and run commands that they normally wouldn't have permission to run; by limiting the available commands (via the session configuration file), you can restrict what users can do with this elevated privilege.
-- -SecurityDescriptorSddl: This lets you specify who can connect to the endpoint. The specifier language is complex; consider using -ShowSecurityDescriptorUI instead, which shows a graphical dialog box to set the endpoint permissions.
-- -StartupScript: This specifies a script to run each time the endpoint starts.
+- -RunAsCredential: Permite especificar una credencial que se utilizará para ejecutar todos los comandos dentro del punto final. Proporcionar esta credencial permite a los usuarios conectarse y ejecutar comandos que normalmente no tendrían permiso para ejecutarse. Limitando los comandos disponibles (a través del archivo de configuración de sesión), puede restringir lo que los usuarios pueden hacer con este privilegio elevado.
 
-You can explore the other options on your own in the help file. Let's take a look at actually creating and using one of these custom endpoints. As shown in figure 3.5, we've created a new AD user account for SallyS of the Sales department. Sally, for some reason, needs to be able to list the users in our AD domain - but that's all she must be able to do. As-is, her account doesn't actually have permission to do so.
+- -SecurityDescriptorSddl: Le permite especificar quién puede conectarse al punto final. El lenguaje de especificación es complejo. Considere el uso de -ShowSecurityDescriptorUI en su lugar, que muestra un cuadro de diálogo gráfico para establecer los permisos de punto final.
+
+- -StartupScript: Especifica un script para ejecutarse cada vez que se inicia el punto final.
+
+Puede explorar las otras opciones por su cuenta en el archivo de ayuda. Echemos un vistazo a la creación y el uso de uno de estos extremos personalizados. Como se muestra en la figura 3.5, hemos creado una nueva cuenta de usuario de AD para SallyS del departamento de ventas. Sally, por alguna razón, debe ser capaz de enumerar a los usuarios en nuestro dominio de AD - pero eso es todo lo que debe ser capaz de hacer. Su cuenta no tiene permiso para hacerlo.
 
 ![image046.png](images/image046.png)
 
-Figure 3.5: Creating a new AD user account to test
+Figura 3.5: Creación de una nueva cuenta de usuario de AD para la prueba
 
-Figure 3.6 shows the creation of the new session configuration file, and the registration of the session. Notice that the session will auto-import the ActiveDirectory module, but only make the Get-ADUser cmdlet visible to Sally. We've specified a restricted remote session type, which will provide a few other key commands to Sally. We also disabled PowerShell's scripting language. When registering the configuration, we specified a "Run As" credential (we were prompted for the password), which is the account all commands will actually execute as.
+La Figura 3.6 muestra la creación del nuevo archivo de configuración de la sesión y el registro de la sesión. Observe que la sesión importará automáticamente el módulo ActiveDirectory, pero sólo hará que el cmdlet Get-ADUser sea visible para Sally. Hemos especificado un tipo de sesión remota restringida, que proporcionará algunos otros comandos clave a Sally. También desactivamos el lenguaje de scripting de PowerShell. Al registrar la configuración, especificamos una credencial "Ejecutar como" (se nos pidió la contraseña), que es la cuenta bajo la qie que todos los comandos ejecutarán.
 
 ![image047.png](images/image047.png)
 
-Figure 3.6: Creating and registering the new endpoint
+Figura 3.6: Creación y registro del nuevo punto final
 
-Because we used the -ShowSecurityDescriptorUI, we got a dialog box like the one shown in figure 3.7. This is an easier way of setting the permissions for who can use this new endpoint. Keep in mind that the endpoint will be running commands under a Domain Admin account, so we want to be very careful who we actually let in! Sally needs, at minimum, Execute and Read permission, which we've given her.
+Debido a que usamos el parámetro "ShowSecurityDescriptorUI", tenemos un cuadro de diálogo como el que se muestra en la figura 3.7. Esta es una manera más fácil de establecer los permisos para quién puede usar este nuevo punto final. Tenga en cuenta que el punto final ejecutará los comandos bajo una cuenta de administrador de dominio, por lo que debemos tener mucho cuidado de a quien realmente dejamos ingresar. Sally necesita, como mínimo, permiso de ejecución y lectura, que ya se le ha dado.
 
 ![image048.png](images/image048.png)
 
-Figure 3.7: Setting the permissions on the endpoint
+Figura 3.7: Configuración de los permisos en el punto final
 
-We then set a password for Sally and enabled her user account. Everything up to this point has been done on the DC01.AD2008R2.loc computer; figure 3.8 moves to that domain's Windows 7 client computer, where we logged in using Sally's account. As you can see, she was unable to enter the default session on the domain controller. But when she attempted to enter the special new session we set up just for her, she was successful. She was able to run Get-ADUser as well.
+A continuación, establecer una contraseña para Sally y activar su cuenta de usuario. Todo hasta este punto se ha hecho en el ordenador DC01.AD2008R2.loc. La figura 3.8 se desplaza al equipo cliente de Windows 7 de ese dominio, donde iniciamos sesión con la cuenta de Sally. Como puede ver, no pudo ingresar a la sesión predeterminada en el controlador de dominio. Pero cuando intentó entrar en la nueva sesión especial que creamos sólo para ella, la operación tuvo éxito. También pudo ejecutar Get-ADUser.
 
 ![image049.png](images/image049.png)
 
-Figure 3.8: Testing the new endpoint by logging in as Sally
+Figura 3.8: Prueba del nuevo punto final iniciando sesión como Sally
 
-Figure 3.9 confirms that Sally has a very limited number of commands to play with. Some of these commands - like Get-Help and Exit-PSSession - are pretty crucial for using the endpoint. Others, like Select-Object, give Sally a minimal amount of non-destructive convenience for getting her command output to look like she needs. This command list (aside from Get-ADUser) is automatically set when you specify the "restricted remote" session type in the session configuration file.
+La Figura 3.9 confirma que Sally tiene un número muy limitado de comandos para ejecutar. Algunos de estos comandos, como Get-Help y Exit-PSSession, son muy importantes para usar el punto final. Otros, como Select-Object, le dan a Sally una cantidad mínima de comodidad no destructiva para que su salida de comandos se vea como ella necesita. Esta lista de comandos (aparte de Get-ADUser) se establece automáticamente cuando se especifica el tipo de sesión "restricted remote" en el archivo de configuración de la sesión.
 
 ![image050.png](images/image050.png)
 
-Figure 3.9: Only eight commands, including the Get-ADUser one we added, are available within the endpoint.
+Figura 3.9: Solamente ocho comandos, incluido el Get-ADUser que hemos agregado, están disponibles dentro del punto final.
 
-In reality, it's unlikely that a Sales user like Sally would be running commands in the PowerShell console. More likely, she'd use some GUI-based application that ran the commands "behind the scenes." Either way, we've ensured that she has exactly the functionality she needs to do her job, and nothing more.
+En realidad, es poco probable que un usuario de ventas como Sally estuviera ejecutando comandos en la consola de PowerShell. Lo más probable es que utilizara alguna aplicación basada en GUI que ejecutara los comandos "detrás de escenas". De cualquier manera, nos hemos asegurado de que ella tiene exactamente la funcionalidad que necesita para hacer su trabajo, y nada más.
 
 ## Security Precautions with Custom Endpoints
 
